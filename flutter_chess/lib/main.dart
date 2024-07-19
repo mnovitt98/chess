@@ -1,76 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 
-enum Piece { pawn, rook, knight, bishop, queen, king }
-enum PieceColor { white, black }
-
-/* these should be the values of the above enums... */
 const BlackSquareColor = Colors.grey;
 const WhiteSquareColor = Colors.white;
 
-/* as well as this...*/
-
-PieceColor getPCFromColor(Color c) {
-  return c == BlackSquareColor ? PieceColor.black : PieceColor.white;
+enum Piece {
+  lPawn,
+  dPawn,
+  lRook,
+  dRook,
+  lKnight,
+  dKnight,
+  lBishop,
+  dBishop,
+  lQueen,
+  dQueen,
+  lKing,
+  dKing
 }
 
-final Map<Piece, Map<PieceColor, Image?>> pieceImgs = {
-  Piece.pawn: {
-    PieceColor.white : Image.asset("images/Chess_plt60.png"),
-    PieceColor.black : Image.asset("images/Chess_pdt60.png")
-  },
-  Piece.rook: {
-    PieceColor.white : Image.asset("images/Chess_rlt60.png"),
-    PieceColor.black : Image.asset("images/Chess_rdt60.png")
-  },
-  Piece.knight: {
-    PieceColor.white : Image.asset("images/Chess_nlt60.png"),
-    PieceColor.black : Image.asset("images/Chess_ndt60.png")
-  },
-  Piece.bishop: {
-    PieceColor.white : Image.asset("images/Chess_blt60.png"),
-    PieceColor.black : Image.asset("images/Chess_bdt60.png")
-  },
-  Piece.queen: {
-    PieceColor.white : Image.asset("images/Chess_qlt60.png"),
-    PieceColor.black : Image.asset("images/Chess_qdt60.png")
-  },
-  Piece.king: {
-    PieceColor.white : Image.asset("images/Chess_klt60.png"),
-    PieceColor.black : Image.asset("images/Chess_kdt60.png")
-  }
+final Map<Piece, Image?> pieceImgs = {
+  Piece.lPawn:   Image.asset("images/Chess_plt60.png"),
+  Piece.dPawn:   Image.asset("images/Chess_pdt60.png"),
+  Piece.lRook:   Image.asset("images/Chess_rlt60.png"),
+  Piece.dRook:   Image.asset("images/Chess_rdt60.png"),
+  Piece.lKnight: Image.asset("images/Chess_nlt60.png"),
+  Piece.dKnight: Image.asset("images/Chess_ndt60.png"),
+  Piece.lBishop: Image.asset("images/Chess_blt60.png"),
+  Piece.dBishop: Image.asset("images/Chess_bdt60.png"),
+  Piece.lQueen:  Image.asset("images/Chess_qlt60.png"),
+  Piece.dQueen:  Image.asset("images/Chess_qdt60.png"),
+  Piece.lKing:   Image.asset("images/Chess_klt60.png"),
+  Piece.dKing:   Image.asset("images/Chess_kdt60.png"),
 };
 
 /* Should not move past this if any of the above images fail to load -
    do a try execpt and close gracefully should they fail to load...
 */
-
-List<List<Piece?>> ChessBoardRows = [
-  [
-    Piece.rook, Piece.knight, Piece.bishop, Piece.king,
-    Piece.queen, Piece.bishop, Piece.knight, Piece.rook,
-  ],
-  [
-    Piece.pawn, Piece.pawn, Piece.pawn, Piece.pawn,
-    Piece.pawn, Piece.pawn, Piece.pawn, Piece.pawn,
-  ],
-  List<Piece?>.filled(8, null),
-  List<Piece?>.filled(8, null),
-  List<Piece?>.filled(8, null),
-  List<Piece?>.filled(8, null),
-  [
-    Piece.pawn, Piece.pawn, Piece.pawn, Piece.pawn,
-    Piece.pawn, Piece.pawn, Piece.pawn, Piece.pawn,
-  ],
-  [
-    Piece.rook, Piece.knight, Piece.bishop, Piece.queen,
-    Piece.king, Piece.bishop, Piece.knight, Piece.rook,
-  ],
-];
-
-
-/* have a global event history for now. */
-
 
 (int, int) getMatrixIndex(int c_index) {
   return ((c_index / 8).toInt(), (c_index % 8).toInt());
@@ -85,16 +52,17 @@ Color getTileColor(int c_index) {
   return (row % 2) == (col % 2) ? WhiteSquareColor : BlackSquareColor;
 }
 
-TableRow makeBoardRow(List<Piece?> pieces, int index_offset) {
+TableRow makeBoardRow(int index_offset) {
   int index = 0;
   List<BoardTile> bts = [];
-  for (Piece? p in pieces) {
+  for (int i = 0; i < 8; i++) {
     Color tc = getTileColor(index + index_offset);
-    bts.add(BoardTile(
-      index: index + index_offset,
-      tileColor: tc,
-      pieceImg: pieceImgs[p]?[index_offset < 15 ? PieceColor.black : PieceColor.white],
-    ));
+    bts.add(
+      BoardTile(
+        index: index + index_offset,
+        tileColor: tc,
+      )
+    );
     index++;
   }
 
@@ -104,8 +72,8 @@ TableRow makeBoardRow(List<Piece?> pieces, int index_offset) {
 List<TableRow> makeBoardRows() {
   List<TableRow> trs = [];
   int index_offset = 0;
-  for (List<Piece?> r in ChessBoardRows) {
-    trs.add(makeBoardRow(r, index_offset));
+  for (int i = 0; i < 8; i++) {
+    trs.add(makeBoardRow(index_offset));
     index_offset += 8;
   }
 
@@ -120,7 +88,12 @@ Table makeChessBoard() {
 }
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ChessBoardState(),
+      child: const MyApp(),
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -129,7 +102,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const title = 'Chess';
-
     return MaterialApp(
       title: title,
       home: Scaffold(
@@ -142,48 +114,59 @@ class MyApp extends StatelessWidget {
 }
 
 class BoardTile extends StatelessWidget {
-      int   index;
-      Color tileColor;
-      Image? pieceImg;
+  int   index;
+  Color tileColor;
 
-      /* eventually should be passing in image asset... */
-      BoardTile({required this.index, required this.tileColor, required this.pieceImg});
+  /* eventually should be passing in image asset... */
+  BoardTile({required this.index, required this.tileColor});
 
-      Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
+    return Consumer<ChessBoardState>(
+      builder: (context, boardState, child) {
         return GestureDetector(
           onTap: () {
             print("index: ${getMatrixIndex(this.index)}");
+            if (index == 0) {
+              boardState._pieces[0] = Piece.lPawn;
+              boardState.update();
+            }
           },
           child: Container(
-             height: 75,
-             color: this.tileColor,
-             child: Center(child: pieceImg)
+            height: 75,
+            color: this.tileColor,
+            child: Center(child: boardState.getPieceImg(index))
           )
         );
       }
+    );
+  }
 }
 
 class ChessBoardState extends ChangeNotifier {
   final List<Piece?> _pieces = [
-    Piece.rook, Piece.knight, Piece.bishop, Piece.king,
-    Piece.queen, Piece.bishop, Piece.knight, Piece.rook,
-    Piece.pawn, Piece.pawn, Piece.pawn, Piece.pawn,
-    Piece.pawn, Piece.pawn, Piece.pawn, Piece.pawn,
+    Piece.dRook,  Piece.dKnight, Piece.dBishop, Piece.dKing,
+    Piece.dQueen, Piece.dBishop, Piece.dKnight, Piece.dRook,
+    Piece.dPawn,  Piece.dPawn,   Piece.dPawn,   Piece.dPawn,
+    Piece.dPawn,  Piece.dPawn,   Piece.dPawn,   Piece.dPawn,
 
     null, null, null, null, null, null, null, null,
     null, null, null, null, null, null, null, null,
     null, null, null, null, null, null, null, null,
     null, null, null, null, null, null, null, null,
 
-    Piece.pawn, Piece.pawn, Piece.pawn, Piece.pawn,
-    Piece.pawn, Piece.pawn, Piece.pawn, Piece.pawn,
-    Piece.rook, Piece.knight, Piece.bishop, Piece.queen,
-    Piece.king, Piece.bishop, Piece.knight, Piece.rook,
+    Piece.lPawn, Piece.lPawn,   Piece.lPawn, Piece.lPawn,
+    Piece.lPawn, Piece.lPawn,   Piece.lPawn, Piece.lPawn,
+    Piece.lRook, Piece.lKnight, Piece.lBishop, Piece.lQueen,
+    Piece.lKing, Piece.lBishop, Piece.lKnight, Piece.lRook,
   ];
 
-  Piece? getPieceAt(index) {
+  Image? getPieceImg(index) {
     /* do bounds check */
-    return _pieces[index];
+    if (index < 0 || index > 63) {
+      return null;
+    }
+
+    return pieceImgs[_pieces[index]];
   }
 
   void update() {
