@@ -20,19 +20,6 @@ enum Piece {
   dKing,
 }
 
-/* we are not concerned with the game logic here, but only how each move type
-   affects the board, i.e., what the board needs to draw...
-*/
-
-enum MoveType {
-  capture,
-  advance, /* this will still cover en passant */
-  kingsideCastle,
-  queensideCastle,
-
-  /* promotion,  handle this later */
-}
-
 final Map<Piece, Image?> pieceImgs = {
   Piece.lPawn:   Image.asset("images/Chess_plt60.png"),
   Piece.dPawn:   Image.asset("images/Chess_pdt60.png"),
@@ -48,6 +35,17 @@ final Map<Piece, Image?> pieceImgs = {
   Piece.dKing:   Image.asset("images/Chess_kdt60.png"),
 };
 
+final List<Piece?> initBoardState = [
+  Piece.dRook,  Piece.dKnight, Piece.dBishop, Piece.dKing,  Piece.dQueen, Piece.dBishop, Piece.dKnight, Piece.dRook,
+  Piece.dPawn,  Piece.dPawn,   Piece.dPawn,   Piece.dPawn,  Piece.dPawn,  Piece.dPawn,   Piece.dPawn,   Piece.dPawn,
+  null,         null,          null,          null,         null,         null,          null,          null,
+  null,         null,          null,          null,         null,         null,          null,          null,
+  null,         null,          null,          null,         null,         null,          null,          null,
+  null,         null,          null,          null,         null,         null,          null,          null,
+  Piece.lPawn,  Piece.lPawn,   Piece.lPawn,   Piece.lPawn,  Piece.lPawn,  Piece.lPawn,   Piece.lPawn,   Piece.lPawn,
+  Piece.lRook,  Piece.lKnight, Piece.lBishop, Piece.lQueen, Piece.lKing,  Piece.lBishop, Piece.lKnight, Piece.lRook,
+];
+
 Color getTileColor(int c_index) {
   /* convert to 2d indices, one indexed */
   int row = (c_index / 8).toInt() + 1;
@@ -56,16 +54,8 @@ Color getTileColor(int c_index) {
 }
 
 class ChessBoardState extends ChangeNotifier {
-  final List<Piece?> _pieces = [
-    Piece.dRook,  Piece.dKnight, Piece.dBishop, Piece.dKing,  Piece.dQueen, Piece.dBishop, Piece.dKnight, Piece.dRook,
-    Piece.dPawn,  Piece.dPawn,   Piece.dPawn,   Piece.dPawn,  Piece.dPawn,  Piece.dPawn,   Piece.dPawn,   Piece.dPawn,
-    null,         null,          null,          null,         null,         null,          null,          null,
-    null,         null,          null,          null,         null,         null,          null,          null,
-    null,         null,          null,          null,         null,         null,          null,          null,
-    null,         null,          null,          null,         null,         null,          null,          null,
-    Piece.lPawn,  Piece.lPawn,   Piece.lPawn,   Piece.lPawn,  Piece.lPawn,  Piece.lPawn,   Piece.lPawn,   Piece.lPawn,
-    Piece.lRook,  Piece.lKnight, Piece.lBishop, Piece.lQueen, Piece.lKing,  Piece.lBishop, Piece.lKnight, Piece.lRook,
-  ];
+
+  List<Piece?> _pieces = List.from(initBoardState);
 
   Image? getPieceImg(index) {
     if (index < 0 || index > 63) {
@@ -74,21 +64,29 @@ class ChessBoardState extends ChangeNotifier {
     return pieceImgs[_pieces[index]];
   }
 
-  /* this will not be done here in the future. instead it will simply ask the backend whether it may update the
-     board in accordance with player input. it will receive a list of instructions that alter the board. if
-     the move is invalid, then an empty list will be returned.
-  */
-
-  bool isValidMove(int srcIndex, int destIndex) {
-    return true;
+  List<({int src, int dest, Piece? p})> getMovesFromGameEngine(int srcIndex, int destIndex) {
+    /* this will be the interface between backend and frontend. may pull out into its own
+       class eventually
+    */
+    return [(src: srcIndex, dest: destIndex, p: null)];
   }
+
   void updateBoard(int srcIndex, int destIndex) {
-    if (isValidMove(srcIndex, destIndex)) {
-      _pieces[destIndex] = _pieces[srcIndex];
-      _pieces[srcIndex] = null;
-      notifyListeners();
+    /* assumption will be to move piece at src to dest, removing the piece at dest
+       if there. Unless Piece is supplied, piece at dest will be the same as piece
+       at src. This allows for the arbitrary placement of pieces by making src
+       and dest the same index, and providing a piece type
+    */
+    for (final (:src, :dest, :p) in getMovesFromGameEngine(srcIndex, destIndex)){
+        Piece? target = p ?? _pieces[src]; /* this shouldn't ever be null... */
+        _pieces[src] = null;
+        _pieces[dest] = target;
     }
+    notifyListeners();
   }
 
-  void
+  void resetBoard() {
+    _pieces = List.from(initBoardState);
+    notifyListeners();
+  }
 }

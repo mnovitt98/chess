@@ -53,9 +53,27 @@ class ChessBoard extends StatelessWidget {
     */
     return ChangeNotifierProvider(
       create: (context) => ChessBoardState(),
-      child: Table(
-        defaultColumnWidth: FixedColumnWidth(this.squareSize),
-        children: trs,
+      child: Column(
+        children: <Widget>[
+          Spacer(flex: 1),
+          Consumer<ChessBoardState>(
+            builder: (context, boardState, child) {
+              return ElevatedButton(
+                style: ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20)),
+                onPressed: () {
+                  boardState.resetBoard();
+                },
+                child: const Text('Reset'),
+              );
+            }
+          ),
+          Spacer(flex: 1),
+          Table(
+            defaultColumnWidth: FixedColumnWidth(this.squareSize),
+            children: trs,
+          ),
+          Spacer(flex: 1),
+        ]
       )
     );
   }
