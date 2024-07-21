@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:io';
+import 'client.dart';
 
 const BlackSquareColor = Colors.grey;
 const WhiteSquareColor = Colors.white;
@@ -56,6 +58,7 @@ Color getTileColor(int c_index) {
 class ChessBoardState extends ChangeNotifier {
 
   List<Piece?> _pieces = List.from(initBoardState);
+  /*final WebSocketChannel ws = getWebSocket();*/
 
   Image? getPieceImg(index) {
     if (index < 0 || index > 63) {
@@ -65,9 +68,13 @@ class ChessBoardState extends ChangeNotifier {
   }
 
   List<({int src, int dest, Piece? p})> getMovesFromGameEngine(int srcIndex, int destIndex) {
+
     /* this will be the interface between backend and frontend. may pull out into its own
-       class eventually
+       class eventually. this will need to provide indirection appropriately; we want the
+       game engine to be able to run locally, over the network, etc.
     */
+    /*sendMove(ws, srcIndex, destIndex);*/
+
     return [(src: srcIndex, dest: destIndex, p: null)];
   }
 
@@ -77,6 +84,10 @@ class ChessBoardState extends ChangeNotifier {
        at src. This allows for the arbitrary placement of pieces by making src
        and dest the same index, and providing a piece type
     */
+    if (srcIndex == destIndex) { /* misclick */
+       return;
+    }
+
     for (final (:src, :dest, :p) in getMovesFromGameEngine(srcIndex, destIndex)){
         Piece? target = p ?? _pieces[src]; /* this shouldn't ever be null... */
         _pieces[src] = null;

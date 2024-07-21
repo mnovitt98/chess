@@ -93,6 +93,9 @@ class BoardTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ChessBoardState>(
       builder: (context, boardState, child) {
+        /* keep this in case I want a mode where the player selects two
+           squares instead of dragging a piece
+        */
         return GestureDetector(
           onTap: () {
             print("index: ${this.index}");
@@ -107,9 +110,12 @@ class BoardTile extends StatelessWidget {
                 color: this.tileColor,
                 child: Draggable<int>(
                   data: this.index,
-                  feedback: Center(child: boardState.getPieceImg(index)), /* widget that follows pointer during drag */
-                  child: Center(child: boardState.getPieceImg(index)),    /* widget that exists before drag */
-                  childWhenDragging: Container(color: this.tileColor, child: null), /* widget that exists during drag */
+                  /* widget that follows pointer during drag */
+                  feedback: Center(child: boardState.getPieceImg(index)),
+                  /* widget that exists before drag */
+                  child: Center(child: boardState.getPieceImg(index)),
+                  /* widget that exists during drag */
+                  childWhenDragging: Container(color: this.tileColor, child: null),
                 )
               );
             }
