@@ -1,3 +1,3 @@
 # chess
 
-https://github.com/user-attachments/assets/9963d4cd-7d37-471b-8bd4-2ece84645a48
+https://github.com/user-attachments/assets/fb415303-a0a7-4c6e-94c7-f1cbee16daa4
