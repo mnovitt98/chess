@@ -1,7 +1,3 @@
 # chess
 
-
-
-https://github.com/user-attachments/assets/6b2bf957-6c06-4c38-a10d-01bbdbd9e1fe
-
-
+https://github.com/user-attachments/assets/9d1a86d3-4005-4780-ba3e-91a0dc49e721
