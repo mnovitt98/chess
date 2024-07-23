@@ -88,6 +88,7 @@ class ChessBoardState extends ChangeNotifier {
     return pieceImgs[_pieces[index]];
   }
   void resetBoard() {
+    /* will need to add a call here that sends a message to backend to reset... */
     _pieces = List.from(initBoardState);
     notifyListeners();
   }
