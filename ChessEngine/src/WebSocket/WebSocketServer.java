@@ -1,4 +1,4 @@
-package WebSocket;
+package websocket;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -76,7 +76,6 @@ public class WebSocketServer {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
             md.update((key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").getBytes());
             String accept = Base64.getEncoder().encodeToString(md.digest());
-            System.out.println(String.format("Key is : %s, Accept is: %s", key, accept));
             return accept;
         } catch (NoSuchAlgorithmException e) {
             ;
@@ -104,14 +103,15 @@ public class WebSocketServer {
         int payloadLength = convertByte(f[1]);
         int maskOffset = 2;
         if (payloadLength <= 125) {
-            System.out.println(String.format("Only %d bytes", payloadLength));
+            System.out.println(String.format("Payload length: %d bytes", payloadLength));
         } else if (payloadLength == 126) {
-            /* adjust payloadLength */
+            /* adjust payloadLength. this is not currently handled */
             maskOffset += 2; /* 2 bytes follow */
             System.out.println("Larger payload.");
         } else if (payloadLength == 127) {
-            /* adjust payloadLength */
+            /* adjust payloadLength. this is not currently handled */
             maskOffset += 8; /* three bytes follow */
+            System.out.println("Larger payload.");
         }
         int payloadOffset = maskOffset + 4;
         for (int i = 0; i < payloadLength; i++) {
@@ -124,16 +124,17 @@ public class WebSocketServer {
     private static byte[] populateDataFrame(String mesg) {
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
 
-        /* first row */
         bs.write((byte) 0x81); /* sending text */
 
         int payloadLength = mesg.getBytes().length;
         if (payloadLength <= 125) {
             bs.write((byte) payloadLength);
         } else if (payloadLength == 126) {
-            bs.write((byte) payloadLength);
+            /* write in payloadLength. this is not currently handled */
+            ;
         } else if (payloadLength == 127) {
-            bs.write((byte) payloadLength);
+            /* write in payloadLength. this is not currently handled */
+            ;
         }
 
         bs.write(mesg.getBytes(), 0, mesg.getBytes().length);
@@ -141,12 +142,8 @@ public class WebSocketServer {
     }
 
 
-    public WebSocketServer(int port) {
-        try {
-            this.ss = new ServerSocket(port);
-        } catch (Exception e) {
-            ;
-        }
+    public WebSocketServer(int port) throws IOException {
+        this.ss = new ServerSocket(port);
     }
 
     public void getClientandUpgradeConnection() {
@@ -155,18 +152,19 @@ public class WebSocketServer {
             this.is = client.getInputStream();
             this.os = client.getOutputStream();
 
+            System.out.println(String.format("Client %s accepted; upgrading connection to websocket.",
+                                             client.getRemoteSocketAddress()));
+
             /* this is blocking. should check this request for validity. again
                in the interest of time, this will be defered. */
             byte[] mesg = new byte[MAX_REQRESP_BUF_SIZ];
             is.read(mesg);
+
             upgradeConnection(WebSocketServer.parseRequestHeaders(new String(mesg, "ascii")));
-
-            System.out.println(WebSocketServer.parseRequestHeaders(new String(mesg, "ascii")));
-            System.out.println(WebSocketServer.parseRequestHeaders(new String(mesg, "ascii")).get("sec-websocket-key"));
-
-            System.out.println("Connection upgraded");
+            System.out.println("Connection successfully upgraded.");
         } catch (Exception e) {
             System.out.println(e);
+            System.out.println("Connection could not be upgraded.");
         }
     }
 
@@ -200,7 +198,7 @@ public class WebSocketServer {
         try {
             this.os.write(bs.toByteArray());
         } catch (IOException e) {
-            ;
+            System.out.println(e);
         }
     }
 
@@ -209,24 +207,30 @@ public class WebSocketServer {
         try {
             this.os.write(populateDataFrame(mesg));
         } catch (IOException e) {
-            ;
+            System.out.println(e);
         }
     }
 
     /* this will block */
     public String readMesg() {
-        byte[] mesg = new byte[MAX_REQRESP_BUF_SIZ];
         int bytes;
+        byte[] mesg = new byte[MAX_REQRESP_BUF_SIZ];
         try {
             bytes = is.read(mesg);
-            if (bytes < 0) {
-                return "";
+            if (bytes > 0) {
+                System.out.println("Processing client data frame.");
+            } else if (bytes == 0) {
+                System.out.println("Received an empty message.");
+                return null;
+            } else {
+                System.out.println("Connection closed by client.");
+                return null;
             }
         } catch (IOException e) {
-            return "Exception";
+            System.out.println(e);
+            return null;
         }
 
-        System.out.println("We have more than zero bytes");
         return parseDataFrame(mesg);
     }
 }

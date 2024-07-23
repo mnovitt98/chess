@@ -22,3 +22,23 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# backups/artificats
+\#*
+*~
+
+ChessUI/.gitignore
+ChessUI/.metadata
+ChessUI/README.md
+ChessUI/analysis_options.yaml
+ChessUI/android/
+ChessUI/ios/
+ChessUI/linux/
+ChessUI/macos/
+ChessUI/pubspec.lock
+ChessUI/pubspec.yaml~
+ChessUI/test/
+ChessUI/web/
+ChessUI/windows/
+
+.DS_Store

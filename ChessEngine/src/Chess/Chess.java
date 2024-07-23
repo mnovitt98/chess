@@ -20,9 +20,11 @@ public class Chess {
         String[] mesgd = mesg.split("\\|");
         int srcIndex  = Integer.parseInt(mesgd[0]);
         int destIndex = Integer.parseInt(mesgd[1]);
+        String piece  = mesgd[2];
 
 
         String[] mesgs = new String[MAX_MESG_COUNT];
+        mesgs[0] = String.join("|", mesgd[0], mesgd[1], mesgd[2]);
         /*
         for (Move m : this.logic.processMove(srcIndex, destIndex)) {
             mesgs.add(m.toMesg());
