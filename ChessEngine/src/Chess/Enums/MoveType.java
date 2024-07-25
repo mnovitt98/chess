@@ -3,8 +3,9 @@ package chess.enums;
 public enum MoveType {
     INVALID,
     ADVANCE,
-    TAKE,
-    ENPASSANT,
+    CAPTURE,
+    LENPASSANT,
+    RENPASSANT,
     KCASTLE,
     QCASTLE,
     PROMOTION

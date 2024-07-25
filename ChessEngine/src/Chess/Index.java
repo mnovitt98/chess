@@ -3,7 +3,18 @@ package chess;
 import java.lang.ArrayIndexOutOfBoundsException;
 
 public class Index {
-    private int isLight;
+    private static final int INFINITY    = Integer.MAX_VALUE;
+    public static final  int DEFAULT_DIM = 8;
+
+    public static int toC(int row, int col) {
+        return row*DEFAULT_DIM + col;
+    }
+
+    public static boolean reachable(int distance) {
+        return distance > 0 && distance != Index.INFINITY;
+    }
+
+    private int direction;
     private int pos;
     private int numRows;
     private int numCols;
@@ -14,19 +25,63 @@ public class Index {
        c         c + 1      ... c*2 - 1
        ...       ...        ... ...
        c(r - 1)  c(r-1) + 1 ... cr - 1
+
+       Assumes "positive" motion tends from the top left to the bottom right.
     */
-    public Index(int position, boolean isLight) {
+
+    /* constructors */
+
+    public Index(int position, boolean direction, int numRows, int numCols) {
+        this(position, direction);
+        this.numRows = numRows;
+        this.numCols = numCols;
+    }
+
+    public Index(int position, boolean switchDirection) {
         this.pos = position;
-        this.isLight = isLight ? -1 : 1;
-        this.numRows = 8;
-        this.numCols = 8;
+        this.direction = switchDirection ? -1 : 1;
+        this.numRows = this.numCols = Index.DEFAULT_DIM;
     }
 
     public Index(int position) {
-        this.pos = position;
-        this.isLight = 1; /* assume index is NOT light */
-        this.numRows = 8;
-        this.numCols = 8;
+        this(position, false);
+    }
+
+    public Index(int row, int col, boolean direction) {
+        this(Index.toC(row, col), direction);
+    }
+
+    public Index(int row, int col) {
+        this(Index.toC(row, col));
+    }
+
+    public Index(Index i, boolean switchDirection) {
+        this.pos = i.getPos();
+        this.direction = switchDirection ? i.getDirection() * -1 : i.getDirection();
+        this.numRows = i.getNumRows();
+        this.numCols = i.getNumCols();
+    }
+
+    public Index(Index i) {
+        this(i, false);
+    }
+
+    /* getters and setters */
+
+    public int getPos() {
+        return this.pos;
+    }
+
+    public int getDirection() {
+        return this.direction;
+    }
+
+    public int getNumRows() {
+        return this.numRows;
+    }
+
+    public int getNumCols() {
+        return this.numCols;
     }
 
     public int getRow() {
@@ -37,76 +92,22 @@ public class Index {
         return this.pos - (this.getRow() * this.numCols);
     }
 
-    public int[] toPair() {
-        return new int[]{getRow(), getCol()};
+    public void setPos(int pos) {
+        this.pos = pos;
+    }
+
+    /* predicates */
+
+    public boolean equals(Index other) {
+        /* this is not canonical, should accept Object type and check for specific type
+           ONLY CONCERNED ABOUT LOCATION NOT DIRECTION */
+        return this.getPos() == other.getPos()
+            && this.getNumRows() == other.getNumRows()
+            && this.getNumCols() == other.getNumCols();
     }
 
     public boolean outOfBounds() {
         return this.pos < 0 || this.pos > (this.numRows * this.numCols);
-    }
-
-    public Index forward(int numSquares)
-        throws ArrayIndexOutOfBoundsException
-    {
-        this.pos += this.isLight * numSquares * numRows;
-        if (outOfBounds()) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        return this;
-    }
-
-    public Index backward(int numSquares)
-        throws ArrayIndexOutOfBoundsException
-    {
-        this.pos -= this.isLight * numSquares * numRows;
-        if (outOfBounds()) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        return this;
-    }
-
-    public Index left(int numSquares)
-        throws ArrayIndexOutOfBoundsException
-    {
-        int oldRow = getRow();
-        this.pos -= isLight * numSquares;
-        if (outOfBounds() || getRow() != oldRow) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        return this;
-    }
-
-    public Index right(int numSquares)
-        throws ArrayIndexOutOfBoundsException
-    {
-        int oldRow = getRow();
-        this.pos += isLight * numSquares;
-        if (outOfBounds() || getRow() != oldRow) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        return this;
-    }
-
-    public Index diagnol(int numSquares, int quadrant)
-        throws ArrayIndexOutOfBoundsException
-    {
-        for (int i = 0; i < numSquares; i++) {
-            /* Quadrants:
-               II  I
-               III IV
-            */
-            if (quadrant == 2) {
-                this.backward(1).right(1);
-            } else if (quadrant == 1) {
-                this.backward(1).left(1);
-            } else if (quadrant == 4) {
-                this.forward(1).right(1);
-            } else {
-                this.forward(1).left(1);
-            }
-        }
-
-        return this;
     }
 
     public boolean onSameRow(Index other) {
@@ -122,8 +123,123 @@ public class Index {
             == Math.abs(this.getCol() - other.getCol());
     }
 
+    /* methods */
+
+    public Index forward(int numSquares)
+        throws ArrayIndexOutOfBoundsException
+    {
+        Index updated = new Index(this);
+        updated.setPos(this.pos + this.direction * numSquares * this.numCols);
+        if (updated.outOfBounds()) {
+            return new Index(-1);
+        }
+        return updated;
+    }
+
+    public int forwardDistanceTo(Index i) {
+        int distance = 0;
+        if (!this.onSameColumn(i)) {
+            distance = Index.INFINITY;
+        } else {
+            distance = i.getRow() - this.getRow();
+        }
+
+        return distance * this.direction;
+    }
+
+    public Index backward(int numSquares)
+        throws ArrayIndexOutOfBoundsException
+    {
+        Index updated = new Index(this);
+        updated.setPos(this.pos - this.direction * numSquares * this.numCols);
+        if (updated.outOfBounds()) {
+            return new Index(-1);
+        }
+        return updated;
+    }
+
+    public int backwardDistanceTo(Index i) {
+        return forwardDistanceTo(i) * -1;
+    }
+
+    public Index left(int numSquares)
+        throws ArrayIndexOutOfBoundsException
+    {
+        int oldRow = getRow();
+        Index updated = new Index(this);
+        updated.setPos(this.pos + this.direction * numSquares);
+        if (updated.outOfBounds() || updated.getRow() != oldRow) { /* fell off the side of the board */
+            return new Index(-1);
+        }
+        return updated;
+    }
+
+    public int leftDistanceTo(Index i) {
+        int distance = 0;
+        if (!this.onSameRow(i)) {
+            distance = Index.INFINITY;
+        } else {
+            distance = i.getCol() - this.getCol();
+        }
+
+        return distance * this.direction;
+    }
+
+    public Index right(int numSquares)
+        throws ArrayIndexOutOfBoundsException
+    {
+        int oldRow = getRow();
+        Index updated = new Index(this);
+        updated.setPos(this.pos - this.direction * numSquares);
+        if (updated.outOfBounds() || updated.getRow() != oldRow) { /* fell off the side of the board */
+            return new Index(-1);
+        }
+        return updated;
+    }
+
+    public int rightDistanceTo(Index i) {
+        return leftDistanceTo(i) * -1;
+    }
+
+    public Index diagnol(int numSquares, int quadrant)
+        throws ArrayIndexOutOfBoundsException
+    {
+        for (int i = 0; i < numSquares; i++) {
+            /* Quadrants:
+               II  I
+               III IV
+            */
+            if (quadrant == 2) {
+                return this.backward(1).right(1);
+            } else if (quadrant == 1) {
+                return this.backward(1).left(1);
+            } else if (quadrant == 4) {
+                return this.forward(1).right(1);
+            } else {
+                return this.forward(1).left(1);
+            }
+        }
+
+        return new Index(-1);
+    }
+
+    public int diagnolDistanceTo() {
+        /* TODO: work this out */
+        return Index.INFINITY;
+    }
+
+    /* representation */
+
+    public int[] toPair() {
+        return new int[]{getRow(), getCol()};
+    }
+
     public String toString() {
-        return String.format("Row: %d, Col: %d", getRow(), getCol());
+        return String.format("(%d, %d)", getRow(), getCol());
+    }
+
+    public String toStringDim() {
+        return String.format("(%d, %d)", getNumRows(), getNumCols());
     }
 
     public void printOnBoard() {

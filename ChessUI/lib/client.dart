@@ -61,6 +61,9 @@ String serializeMove(int srcIndex, int destIndex, Piece? p) {
     case "dKing":
       p = Piece.dKing;
       break;
+    default:
+      p = Piece.INVALID;
+      return (src: 0, dest: 0, p:null);
   }
 
   return (src: int.parse(data[0]), dest: int.parse(data[1]), p: p);

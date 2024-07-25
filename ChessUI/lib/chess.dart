@@ -8,6 +8,7 @@ const BlackSquareColor = Colors.grey;
 const WhiteSquareColor = Colors.white;
 
 enum Piece {
+  INVALID,
   lPawn,
   dPawn,
   lRook,
@@ -66,6 +67,9 @@ class ChessBoardState extends ChangeNotifier {
   ChessBoardState() {
     ws = getWebSocket(7897, (message) {
       ({int src, int dest, Piece? p}) m = deserializeMove(message);
+      if (m.src == 0 && m.dest == 0 && m.p == null) {
+        return;
+      }
       Piece? target = m.p ?? _pieces[m.src]; /* this shouldn't ever be null... */
       _pieces[m.src] = null;
       _pieces[m.dest] = target;
