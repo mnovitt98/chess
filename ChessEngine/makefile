@@ -1,6 +1,7 @@
 CLASSPATH=/Users/mnovitt/Repos/chess/ChessEngine/classes/
 
-chess :  WebSocketServer.class                \
+chess :  HTTPParser.class                     \
+         WebSocketServer.class                \
          MoveType.class PieceType.class       \
          Index.class Piece.class              \
 		 Pawn.class                           \
@@ -9,6 +10,9 @@ chess :  WebSocketServer.class                \
          Logic.class Board.class Chess.class  \
          Index.class                          \
          Driver.class
+
+HTTPParser.class : src/WebSocket/HTTPParser.java
+	javac -d $(CLASSPATH)/ src/WebSocket/HTTPParser.java
 
 WebSocketServer.class : src/WebSocket/WebSocketServer.java
 	javac -d $(CLASSPATH)/ src/WebSocket/WebSocketServer.java
