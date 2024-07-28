@@ -54,31 +54,6 @@ public class WebSocketServer {
     }
 
     /**
-     * Determine the unsigned value stored in the byte argument.
-     * Since Java trades only in two's complement values, one must coerce a
-     * negative byte value into an int to get at its unsigned contents. This
-     * is done by taking the following sum:
-     * <p>
-     *   1111111111111111111111111xxxxxxx
-     * + 00000000000000000000000010000000
-     * ----------------------------------
-     *   0000000000000000000000000xxxxxxx
-     * </p>
-     * The overflow is discarded of course. Again, please note this is only
-     * performed when the byte is negative. Otherwise the value is the same
-     * signed or unsigned. This function is necessary when working with bytes
-     * off the wire.
-     *
-     * @param  b signed byte
-     * @return a positive int
-     */
-    private static int convertByte(byte b) {
-        // Here a widening primitive conversion is performed: b gets promoted to
-        // the int value shown above before being added to 128.
-        return b < 0 ? b + 128 : b;
-    }
-
-    /**
      * Produce the Sec-WebSocket-Accept header value as defined in:
      * <a href="https://datatracker.ietf.org/doc/html/rfc6455#section-4.2.2">
      *  Section 4.2.2: Sending the Server's Opening Handshake
@@ -99,20 +74,82 @@ public class WebSocketServer {
         return "";
     }
 
+    /*
+      For ease of reference, the data frame format is supplied here.
+      Consult for greater detail:
+      https://datatracker.ietf.org/doc/html/rfc6455#section-5.2
+
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-------+-+-------------+-------------------------------+
+     |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
+     |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
+     |N|V|V|V|       |S|             |   (if payload len==126/127)   |
+     | |1|2|3|       |K|             |                               |
+     +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+     |     Extended payload length continued, if payload len == 127  |
+     + - - - - - - - - - - - - - - - +-------------------------------+
+     |                               |Masking-key, if MASK set to 1  |
+     +-------------------------------+-------------------------------+
+     | Masking-key (continued)       |          Payload Data         |
+     +-------------------------------- - - - - - - - - - - - - - - - +
+     :                     Payload Data continued ...                :
+     + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+     |                     Payload Data continued ...                |
+     +---------------------------------------------------------------+
+
+    */
+
+    /**
+     * Returns the application data in text form.
+     * For now, this only returns the data present in text form, and only 125
+     * bytes of it. This will eventually support all data types in the protocol.
+     *
+     * @param f a byte array containing a WebSocket data frame
+     * @return a String representation of the frame's application data
+     */
     private static String parseDataFrame(byte[] f) {
-        int payloadLength = convertByte(f[1]);
+        /* See the frame format. */
+
+        if ((byte)(f[0] & 0x0f) == Opcode.CONN_CLOSE.value)  {
+            System.out.println("The client has closed the connection.");
+            return null;
+        }
+
+        /*
+         * We want all the bits except the leftmost. This bit is the MASK
+         * bit, which should always be set to one if the frame is coming from
+         * the client. Should be validating this in the future.
+         */
+        int payloadLength = f[1] & 0x7f;
+
+        /*
+         * Minimally, the masking key is two bytes offset from the start of the
+         * frame.
+         */
         int maskOffset = 2;
+
+        /*
+         * See: https://datatracker.ietf.org/doc/html/rfc6455#section-5.2
+         * for parsing of payload length.
+         */
         if (payloadLength <= 125) {
             System.out.println(String.format("Payload length: %d bytes", payloadLength));
         } else if (payloadLength == 126) {
-            /* adjust payloadLength. this is not currently handled */
-            maskOffset += 2; /* 2 bytes follow */
-            System.out.println("Larger payload.");
+            // adjust payloadLength. this is not currently handled
+            maskOffset += 2; // 2 bytes follow */
+            System.out.println("16 bits of payload length.");
         } else if (payloadLength == 127) {
-            /* adjust payloadLength. this is not currently handled */
-            maskOffset += 8; /* eight bytes follow */
-            System.out.println("Larger payload.");
+            // adjust payloadLength. this is not currently handled
+            maskOffset += 8; // eight bytes follow
+            System.out.println("64 bits of payload length.");
         }
+
+        /*
+         * The client is required to mask the payload data. The masking and
+         * unmasking operations are the same. See here:
+         * https://datatracker.ietf.org/doc/html/rfc6455#section-5.3
+         */
         int payloadOffset = maskOffset + 4;
         for (int i = 0; i < payloadLength; i++) {
             f[i+payloadOffset] = (byte) (f[i+payloadOffset] ^ f[(i % 4) + maskOffset]);
@@ -121,58 +158,84 @@ public class WebSocketServer {
         return new String(Arrays.copyOfRange(f, payloadOffset, payloadOffset + payloadLength));
     }
 
+    /**
+     * Fill in the fields of a data frame to transport the given message.
+     *
+     * @param mesg the string to embed in the data frame
+     * @return a byte array containing a WebSocket data frame
+     */
     private static byte[] populateDataFrame(String mesg) {
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
 
-        bs.write((byte) 0x81); /* sending text */
+        /*
+         * Write the first byte, indicating that this data frame is final (no
+         * fragmentation), has not negotiated extensions, and is sending text
+         * data.
+         */
+        bs.write((byte) (0x80 + Opcode.TEXT.value));
 
-        int payloadLength = mesg.getBytes().length;
+        byte[] data = mesg.getBytes();
+        int payloadLength = data.length;
         if (payloadLength <= 125) {
             bs.write((byte) payloadLength);
         } else if (payloadLength == 126) {
-            /* write in payloadLength. this is not currently handled */
+            // write in payloadLength. this is not currently handled
             ;
         } else if (payloadLength == 127) {
-            /* write in payloadLength. this is not currently handled */
+            // write in payloadLength. this is not currently handled
             ;
         }
 
-        bs.write(mesg.getBytes(), 0, mesg.getBytes().length);
+        bs.write(data, 0, data.length);
         return bs.toByteArray();
     }
 
     private ServerSocket ss;
-    private Socket client;
-    private InputStream is;
-    private OutputStream os;
 
     public WebSocketServer(int port) throws IOException {
         this.ss = new ServerSocket(port);
     }
 
-    public void getClientandUpgradeConnection() {
+    public Socket getClientandUpgradeConnection() {
+        Socket client = null;
         try {
-            this.client = ss.accept();
-            this.is = client.getInputStream();
-            this.os = client.getOutputStream();
+            client = ss.accept();
 
-            System.out.println(String.format("Client %s accepted; upgrading connection to websocket.",
+            System.out.println(String.format("Client %s accepted; " +
+                                             "upgrading connection to WebSocket.",
                                              client.getRemoteSocketAddress()));
 
             // This is blocking.
             byte[] mesg = new byte[MAX_REQRESP_BUF_SIZ];
-            is.read(mesg);
+            client.getInputStream().read(mesg);
 
-            upgradeConnection(HTTPParser.parseRequestHeaders(new String(mesg, "ascii")));
-            System.out.println("Connection successfully upgraded.");
+            if (upgradeConnection(client,
+                                  HTTPParser.parseRequestHeaders(new String(mesg, "ascii")))) {
+                System.out.println("Connection successfully upgraded.");
+            } else {
+                System.out.println("Connection could not be upgraded.");
+                return null;
+            }
         } catch (Exception e) {
             System.out.println(e);
             System.out.println("Connection could not be upgraded.");
+            return null;
         }
+
+        return client;
     }
 
-    /* link rfc */
-    private void upgradeConnection(Map<String, String> reqHeaders) {
+    /**
+     * Upgrade the HTTP connection to a Websocket.
+     * See: <a href="https://datatracker.ietf.org/doc/html/rfc6455#section-4.2.2">
+     * Section 4.2.2: Sending the Server's Opening Handshake
+     * </a> in particular step 5.
+     *
+     * @param client     a socket that has already requested a WebSocket upgrade
+     * @param reqHeaders a map of HTTP request headers to their values
+     * @return a boolean indicating upgrade success
+     */
+    private boolean upgradeConnection(Socket client, Map<String, String> reqHeaders) {
         int numRespLines = 4;
         String[] respLines = new String[numRespLines];
         respLines[0] = "HTTP/1.1 101 Switching Protocols";
@@ -180,45 +243,37 @@ public class WebSocketServer {
         respLines[2] = "Connection: Upgrade";
         respLines[3] = String.format(
           "Sec-WebSocket-Accept: %s",
-          getAcceptHeader(reqHeaders.get("sec-websocket-key"))
+          WebSocketServer.getAcceptHeader(reqHeaders.get("sec-websocket-key"))
         );
 
         byte[] resp = new byte[MAX_REQRESP_BUF_SIZ];
         int respBytes = HTTPParser.packHTTPResponse(respLines, numRespLines, resp);
 
         try {
-            this.os.write(resp, 0, respBytes);
+            client.getOutputStream().write(resp, 0, respBytes);
         } catch (IOException e) {
-            System.out.println(e);;
+            System.out.println(e);
+            return false;
         }
+
+        return true;
     }
 
     /* The following methods all block... */
-    public void sendPing() {
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        bs.write((byte) 0x89);
-        bs.write((byte) 0x00);
+
+    public void sendMesg(Socket client, String mesg) {
         try {
-            this.os.write(bs.toByteArray());
+            client.getOutputStream().write(populateDataFrame(mesg));
         } catch (IOException e) {
             System.out.println(e);
         }
     }
 
-
-    public void sendMesg(String mesg) {
-        try {
-            this.os.write(populateDataFrame(mesg));
-        } catch (IOException e) {
-            System.out.println(e);
-        }
-    }
-
-    public String readMesg() {
+    public String readMesg(Socket client) {
         int bytes;
         byte[] mesg = new byte[MAX_REQRESP_BUF_SIZ];
         try {
-            bytes = is.read(mesg);
+            bytes = client.getInputStream().read(mesg);
             if (bytes > 0) {
                 System.out.println("Processing client data frame.");
             } else if (bytes == 0) {
@@ -234,5 +289,27 @@ public class WebSocketServer {
         }
 
         return parseDataFrame(mesg);
+    }
+
+    public void sendPing(Socket client) {
+        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+        bs.write((byte) (0x80 + Opcode.PING.value));
+        bs.write((byte) 0x00); // no data
+        try {
+            client.getOutputStream().write(bs.toByteArray());
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+
+    public void sendClose(Socket client) {
+        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+        bs.write((byte) (0x80 + Opcode.CONN_CLOSE.value));
+        bs.write((byte) 0x00); // no data
+        try {
+            client.getOutputStream().write(bs.toByteArray());
+        } catch (IOException e) {
+            System.out.println(e);
+        }
     }
 }

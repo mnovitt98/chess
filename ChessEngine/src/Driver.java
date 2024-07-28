@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.net.Socket;
 
 import websocket.WebSocketServer;
 import chess.Chess;
@@ -19,17 +20,20 @@ public class Driver {
         }
 
         /* this is blocking */
-        ws.getClientandUpgradeConnection();
+        Socket client = ws.getClientandUpgradeConnection();
 
         Chess game = new Chess();
         while (true) {
             /* this is blocking */
-            String mesg = ws.readMesg();
+            String mesg = ws.readMesg(client);
+            if (mesg == null) {
+                break;
+            }
 
             for (String s : game.getInstructions(mesg)) {
                 if (s != null) {
                     /* this is blocking */
-                    ws.sendMesg(s);
+                    ws.sendMesg(client, s);
                 }
             }
         }

@@ -4,17 +4,20 @@ import java.util.Map;
 import java.util.HashMap;
 import java.nio.ByteBuffer;
 
+/**
+ * Parse/pack the components of an HTTP request/response.
+ */
 class HTTPParser {
     private static String LINE_SEP = "\r\n";
 
     public static Map<String, String> parseRequestStartLine(String req) {
         /* What we're after: GET / HTTP/1.1 */
-        String[] requestLine = req.split(HTTPParser.LINE_SEP)[0].split(" ");
+        String[] requestStartLine = req.split(HTTPParser.LINE_SEP)[0].split(" ");
 
         Map<String, String> requestLineComponents = new HashMap();
-        requestLineComponents.put("method", requestLine[0]);
-        requestLineComponents.put("resource", requestLine[1]);
-        requestLineComponents.put("version", requestLine[2]);
+        requestLineComponents.put("method", requestStartLine[0]);
+        requestLineComponents.put("resource", requestStartLine[1]);
+        requestLineComponents.put("version", requestStartLine[2]);
 
         return requestLineComponents;
     }
