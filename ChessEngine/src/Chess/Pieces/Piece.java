@@ -1,8 +1,8 @@
 package chess.pieces;
 
+import chess.enums.MoveType;
 import chess.Board;
 import chess.Index;
-import chess.enums.MoveType;
 
 public abstract class Piece {
     public static boolean sameColor(Piece a, Piece b) {

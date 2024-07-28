@@ -200,7 +200,6 @@ public class WebSocketServer {
         Socket client = null;
         try {
             client = ss.accept();
-
             System.out.println(String.format("Client %s accepted; " +
                                              "upgrading connection to WebSocket.",
                                              client.getRemoteSocketAddress()));

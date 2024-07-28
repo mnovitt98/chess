@@ -66,13 +66,7 @@ class ChessBoardState extends ChangeNotifier {
      updates. however, the callback has the benefit of preempting the transition to multiplayer...*/
   ChessBoardState() {
     ws = getWebSocket(7897, (message) {
-      ({int src, int dest, Piece? p}) m = deserializeMove(message);
-      if (m.src == 0 && m.dest == 0 && m.p == null) {
-        return;
-      }
-      Piece? target = m.p ?? _pieces[m.src]; /* this shouldn't ever be null... */
-      _pieces[m.src] = null;
-      _pieces[m.dest] = target;
+      deserializeMove(message, this);
       notifyListeners();
     });
   }
@@ -85,12 +79,21 @@ class ChessBoardState extends ChangeNotifier {
     ws?.sink.add(serializeMove(srcIndex, destIndex, _pieces[srcIndex]));
   }
 
+  void setPiece(int atIndex, Piece? p) {
+       _pieces[atIndex] = p;
+  }
+
+  void clearPiece(int atIndex) {
+       _pieces[atIndex] = null;
+  }
+
   Image? getPieceImg(index) {
     if (index < 0 || index > 63) {
       return null;
     }
     return pieceImgs[_pieces[index]];
   }
+
   void resetBoard() {
     /* will need to add a call here that sends a message to backend to reset... */
     _pieces = List.from(initBoardState);

@@ -13,58 +13,62 @@ WebSocketChannel getWebSocket(int port, callback) {
 }
 
 
-
 String serializeMove(int srcIndex, int destIndex, Piece? p) {
-  String s = "${srcIndex}|${destIndex}|$p";
+  String s = "MOVE|${srcIndex}|${destIndex}";
   print("Sending $s");
   return s;
 }
 
-({int src, int dest, Piece? p}) deserializeMove(String s) {
+void deserializeMove(String s, ChessBoardState bs) {
   print("In deserialize move: $s");
   final data = s.split("|");
-  Piece? p = null;
-  switch (data[2]) {
-    case "lPawn":
-      p = Piece.lPawn;
-      break;
-    case "dPawn":
-      p = Piece.dPawn;
-      break;
-    case "lRook":
-      p = Piece.lRook;
-      break;
-    case "dRook":
-      p = Piece.dRook;
-      break;
-    case "lKnight":
-      p = Piece.lKnight;
-      break;
-    case "dKnight":
-      p = Piece.dKnight;
-      break;
-    case "lBishop":
-      p = Piece.lBishop;
-      break;
-    case "dBishop":
-      p = Piece.dBishop;
-      break;
-    case "lQueen":
-      p = Piece.lQueen;
-      break;
-    case "dQueen":
-      p = Piece.dQueen;
-      break;
-    case "lKing":
-      p = Piece.lKing;
-      break;
-    case "dKing":
-      p = Piece.dKing;
-      break;
-    default:
-      p = Piece.INVALID;
-      return (src: 0, dest: 0, p:null);
-  }
+  String instruction = data[0];
 
-  return (src: int.parse(data[0]), dest: int.parse(data[1]), p: p);
+  // error handling here
+  switch (instruction) {
+  case "REPLACE":
+    Piece p  = pieceFromString(data[1]);
+    int dest = int.parse(data[2]);
+    bs.setPiece(dest, p);
+    break;
+  case "REMOVE":
+    int dest = int.parse(data[1]);
+    bs.clearPiece(dest);
+    break;
+  case "WINNER":
+    break;
+  case "INVALID":
+    print("Last move submitted was invalid, doing nothing.");
+  }
+}
+
+Piece pieceFromString(String s) {
+  switch (s) {
+    case "lPawn":
+      return Piece.lPawn;
+    case "dPawn":
+      return Piece.dPawn;
+    case "lRook":
+      return Piece.lRook;
+    case "dRook":
+      return Piece.dRook;
+    case "lKnight":
+      return Piece.lKnight;
+    case "dKnight":
+      return Piece.dKnight;
+    case "lBishop":
+      return Piece.lBishop;
+    case "dBishop":
+      return Piece.dBishop;
+    case "lQueen":
+      return Piece.lQueen;
+    case "dQueen":
+      return Piece.dQueen;
+    case "lKing":
+      return Piece.lKing;
+    case "dKing":
+      return Piece.dKing;
+    default:
+      return Piece.INVALID;
+  }
 }

@@ -6,11 +6,12 @@ import chess.Chess;
 
 public class Driver {
     private static final int PORT = 7897;
+
     public static void main(String[] args) {
         WebSocketServer ws;
         try {
             ws = new WebSocketServer(PORT);
-            System.out.println("Awaiting client connection...");
+
         } catch (IOException e) {
             System.out.print(String.format("Exception setting up socket server: %s\n", e)
                              + "Quitting.\n");
@@ -19,20 +20,18 @@ public class Driver {
                        be uninitialized in the following statement. */
         }
 
-        /* this is blocking */
+        System.out.println("Awaiting client connection...");
         Socket client = ws.getClientandUpgradeConnection();
 
         Chess game = new Chess();
         while (true) {
-            /* this is blocking */
             String mesg = ws.readMesg(client);
             if (mesg == null) {
                 break;
             }
 
             for (String s : game.getInstructions(mesg)) {
-                if (s != null) {
-                    /* this is blocking */
+                if (s != null) { // this should always be returing at least one message
                     ws.sendMesg(client, s);
                 }
             }

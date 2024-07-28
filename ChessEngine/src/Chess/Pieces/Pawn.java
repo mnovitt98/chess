@@ -38,26 +38,33 @@ public class Pawn extends Piece {
     }
 
     public MoveType isValidMove(Board b, Index src, Index dest) {
+        System.out.println("we have to be here");
         /* need to put this in super so it isnt repeated everywhere */
         if (this.isLight()) {
             src = new Index(src, true);
         }
+
+
 
         MoveType mt = MoveType.INVALID;
         if (src.outOfBounds() || dest.outOfBounds()) {
             return mt;
         }
 
+        System.out.println("are we here");
         if (b.pieceAt(dest)) { /* attacking */
             if (!Piece.sameColor(this, b.getPieceAt(dest))) {
                 // normal capture
                 if (b.pieceAt(src.forward(1).left(1)) == b.pieceAt(dest)
                     || b.pieceAt(src.forward(1).right(1)) == b.pieceAt(dest)) {
+                    System.out.println("reg capture.");
                     mt = MoveType.CAPTURE;
                 }
             } else { /* cant capture a piece of the same color... */
+                System.out.println("Cant capture a piece of the same color.");
                 return MoveType.INVALID;
             }
+            System.out.println("asdfsdfa capture.");
         } else {
             System.out.println(String.format("%s %s", src, dest));
             System.out.println(String.format("%s %s", src.forward(1), src.forward(1).left(1)));

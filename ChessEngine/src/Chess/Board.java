@@ -2,13 +2,13 @@ package chess;
 
 import java.lang.ArrayIndexOutOfBoundsException;
 
-import chess.Piece;
 import chess.Index;
-import chess.Rook;
-import chess.Knight;
-import chess.Bishop;
-import chess.Queen;
-import chess.King;
+import chess.pieces.Piece;
+import chess.pieces.Rook;
+import chess.pieces.Knight;
+import chess.pieces.Bishop;
+import chess.pieces.Queen;
+import chess.pieces.King;
 
 public class Board {
     private Piece[] board;
@@ -70,8 +70,6 @@ public class Board {
 
     public boolean openForwardWalk(Index src, Index dest) {
         int distance = src.forwardDistanceTo(dest);
-        System.out.println(String.format("distance: %d", distance));
-        System.out.println(String.format("src %s, dest %s", src, dest));
         if (!Index.reachable(distance)) {
             return false;
         }
@@ -80,7 +78,6 @@ public class Board {
             return true;
         }
 
-        System.out.println("here in open walk");
         try {
             for (int i = 0; i < distance - 1; i++) {
                 src = src.forward(1);

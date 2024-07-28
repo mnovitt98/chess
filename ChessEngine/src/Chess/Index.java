@@ -2,6 +2,8 @@ package chess;
 
 import java.lang.ArrayIndexOutOfBoundsException;
 
+import chess.pieces.Piece;
+
 public class Index {
     private static final int INFINITY    = Integer.MAX_VALUE;
     public static final  int DEFAULT_DIM = 8;
@@ -47,14 +49,6 @@ public class Index {
         this(position, false);
     }
 
-    public Index(int row, int col, boolean direction) {
-        this(Index.toC(row, col), direction);
-    }
-
-    public Index(int row, int col) {
-        this(Index.toC(row, col));
-    }
-
     public Index(Index i, boolean switchDirection) {
         this.pos = i.getPos();
         this.direction = switchDirection ? i.getDirection() * -1 : i.getDirection();
@@ -64,6 +58,13 @@ public class Index {
 
     public Index(Index i) {
         this(i, false);
+    }
+
+    public Index(Index i, Piece p) {
+        this.pos = i.getPos();
+        this.direction = p.isLight() ? -1 : 1;
+        this.numRows = i.getNumRows();
+        this.numRows = i.getNumCols();
     }
 
     /* getters and setters */
@@ -235,6 +236,10 @@ public class Index {
     }
 
     public String toString() {
+        return String.format("%d", getPos());
+    }
+
+    public String toStringRC() {
         return String.format("(%d, %d)", getRow(), getCol());
     }
 
