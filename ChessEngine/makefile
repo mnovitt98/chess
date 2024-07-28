@@ -26,28 +26,30 @@ PieceType.class : src/Chess/Enums/PieceType.java
 Index.class : src/Chess/Index.java
 	javac -d $(CLASSPATH)/ src/Chess/Index.java
 
-Piece.class : src/Chess/Piece.java
-	javac -d $(CLASSPATH)/ src/Chess/Piece.java
+###################
+
+Piece.class : src/Chess/Pieces/Piece.java
+	javac -d $(CLASSPATH)/ src/Chess/Pieces/Piece.java
 
 # specific pieces
 
-Pawn.class : src/Chess/Pawn.java
-	javac -d $(CLASSPATH)/ src/Chess/Pawn.java
+Pawn.class : src/Chess/Pieces/Pawn.java
+	javac -d $(CLASSPATH)/ src/Chess/Pieces/Pawn.java
 
-Rook.class : src/Chess/Rook.java
-	javac -d $(CLASSPATH)/ src/Chess/Rook.java
+Rook.class : src/Chess/Pieces/Rook.java
+	javac -d $(CLASSPATH)/ src/Chess/Pieces/Rook.java
 
-Knight.class : src/Chess/Knight.java
-	javac -d $(CLASSPATH)/ src/Chess/Knight.java
+Knight.class : src/Chess/Pieces/Knight.java
+	javac -d $(CLASSPATH)/ src/Chess/Pieces/Knight.java
 
-Bishop.class : src/Chess/Bishop.java
-	javac -d $(CLASSPATH)/ src/Chess/Bishop.java
+Bishop.class : src/Chess/Pieces/Bishop.java
+	javac -d $(CLASSPATH)/ src/Chess/Pieces/Bishop.java
 
-Queen.class : src/Chess/Queen.java
-	javac -d $(CLASSPATH)/ src/Chess/Queen.java
+Queen.class : src/Chess/Pieces/Queen.java
+	javac -d $(CLASSPATH)/ src/Chess/Pieces/Queen.java
 
-King.class : src/Chess/King.java
-	javac -d $(CLASSPATH)/ src/Chess/King.java
+King.class : src/Chess/Pieces/King.java
+	javac -d $(CLASSPATH)/ src/Chess/Pieces/King.java
 
 #####################
 

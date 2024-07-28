@@ -1,4 +1,4 @@
-package chess;
+package chess.pieces;
 
 import chess.enums.MoveType;
 import chess.Piece;

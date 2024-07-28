@@ -1,11 +1,11 @@
-package chess;
+package chess.pieces;
 
 import chess.Board;
 import chess.Index;
 import chess.enums.MoveType;
 
-public class Rook extends Piece {
-    public Rook(boolean isLight) {
+public class Bishop extends Piece {
+    public Bishop(boolean isLight) {
         super(isLight);
     }
 
@@ -14,10 +14,10 @@ public class Rook extends Piece {
     }
 
     public String toString() {
-        return super.toString() + "Rook";
+        return super.toString() + "Bishop";
     }
 
     public String toSmallString() {
-        return super.toString() + "R";
+        return super.toString() + "B";
     }
 }
