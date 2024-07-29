@@ -33,8 +33,7 @@ public class Piece {
             return MoveType.INVALID;
         }
 
-        boolean attacking = b.pieceAt(dest);
-        if (attacking && Piece.sameColor(this, b.getPieceAt(dest))) {
+        if (b.pieceAt(dest) && Piece.sameColor(this, b.getPieceAt(dest))) {
             System.out.println("Invalid: can't capture a piece of the same color.");
             return MoveType.INVALID;
         }

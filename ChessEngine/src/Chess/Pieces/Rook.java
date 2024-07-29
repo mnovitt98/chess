@@ -15,6 +15,7 @@ public class Rook extends Piece {
         if (mt == MoveType.INVALID) {
             return mt;
         }
+        mt = MoveType.INVALID;
         if (this.isLight()) {
             src = new Index(src, this);
         }

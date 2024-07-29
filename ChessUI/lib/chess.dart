@@ -39,7 +39,7 @@ final Map<Piece, Image?> pieceImgs = {
 };
 
 final List<Piece?> initBoardState = [
-  Piece.dRook,  Piece.dKnight, Piece.dBishop, Piece.dKing,  Piece.dQueen, Piece.dBishop, Piece.dKnight, Piece.dRook,
+  Piece.dRook,  Piece.dKnight, Piece.dBishop, Piece.dQueen,  Piece.dKing, Piece.dBishop, Piece.dKnight, Piece.dRook,
   Piece.dPawn,  Piece.dPawn,   Piece.dPawn,   Piece.dPawn,  Piece.dPawn,  Piece.dPawn,   Piece.dPawn,   Piece.dPawn,
   null,         null,          null,          null,         null,         null,          null,          null,
   null,         null,          null,          null,         null,         null,          null,          null,
