@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:io';
+import 'dart:async';
 import 'client.dart';
 
 const BlackSquareColor = Colors.grey;
@@ -59,24 +60,29 @@ Color getTileColor(int c_index) {
 class ChessBoardState extends ChangeNotifier {
 
   List<Piece?> _pieces = List.from(initBoardState);
-  WebSocketChannel? ws;
+  late WebSocketChannel ws;
+  ({int i, Piece? p}) lastSelected = (i: -1, p: null);
 
-  /* not sure if I like using a callback here, would rather it be more synchronized, i.e.,
-     the client sends a move to the engine, waits, the engine sends a move back, the client
-     updates. however, the callback has the benefit of preempting the transition to multiplayer...*/
   ChessBoardState() {
     ws = getWebSocket(7897, (message) {
       deserializeMove(message, this);
-      notifyListeners();
     });
   }
 
   void updateBoard(int srcIndex, int destIndex) async {
+    /* assuming the front end board is still faithfully representing the
+       backend state of things, could also prevent a network back and forth
+       by returning when the board does not have a piece at srcIndex */
     if (srcIndex == destIndex) { /* misclick */
        return;
     }
-    await ws?.ready;
-    ws?.sink.add(serializeMove(srcIndex, destIndex, _pieces[srcIndex]));
+
+    setLastSelected(srcIndex);
+    clearPiece(srcIndex);
+    notifyListeners();
+
+    await ws.ready;
+    ws.sink.add(serializeMove(srcIndex, destIndex, _pieces[srcIndex]));
   }
 
   void setPiece(int atIndex, Piece? p) {
@@ -85,6 +91,15 @@ class ChessBoardState extends ChangeNotifier {
 
   void clearPiece(int atIndex) {
        _pieces[atIndex] = null;
+  }
+
+  void setLastSelected(int i) {
+    lastSelected = (i: i, p: _pieces[i]);
+  }
+
+  void resetLastSelected() {
+       _pieces[lastSelected.i] = lastSelected.p;
+       lastSelected = (i: -1, p: null);
   }
 
   Image? getPieceImg(index) {

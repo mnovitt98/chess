@@ -20,6 +20,8 @@ public class King extends Piece {
             src = new Index(src, this);
         }
 
+        /* handle castling */
+
         boolean attacking = b.pieceAt(dest);
         if (src.forward(1).equals(dest)
             || src.backward(1).equals(dest)

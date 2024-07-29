@@ -9,14 +9,24 @@ public class Piece {
         return a.isLight() == b.isLight();
     }
 
-    private boolean isLight;
+    protected boolean isLight;
+    protected int moveCount;
 
     public Piece(boolean isLight) {
         this.isLight = isLight;
+        this.moveCount = 0;
     }
 
     public boolean isLight() {
         return this.isLight;
+    }
+
+    public int getMoveCount() {
+        return this.moveCount;
+    }
+
+    public boolean hasMoved() {
+        return this.getMoveCount() > 0;
     }
 
     public String toString() {

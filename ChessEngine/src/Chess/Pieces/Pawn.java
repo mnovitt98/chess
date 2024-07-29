@@ -15,21 +15,11 @@ public class Pawn extends Piece {
         return pa.wasEager() && pa.getMoveCount() == 1;
     }
 
-    private int moveCount;
     private boolean wasEager;
 
     public Pawn(boolean isDark) {
         super(isDark);
-        this.moveCount = 0;
         this.wasEager = false;
-    }
-
-    public int getMoveCount() {
-        return this.moveCount;
-    }
-
-    public boolean hasMoved() {
-        return this.getMoveCount() > 0;
     }
 
     public boolean wasEager() {

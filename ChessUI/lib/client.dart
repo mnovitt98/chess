@@ -39,6 +39,11 @@ void deserializeMove(String s, ChessBoardState bs) {
     break;
   case "INVALID":
     print("Last move submitted was invalid, doing nothing.");
+    bs.resetLastSelected();
+    bs.notifyListeners();
+  case "COMPLETE":
+    bs.notifyListeners();
+    ;
   }
 }
 
