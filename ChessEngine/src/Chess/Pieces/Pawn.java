@@ -3,6 +3,7 @@ package chess.pieces;
 import chess.enums.MoveType;
 import chess.pieces.Piece;
 import chess.Index;
+import chess.Index;
 import chess.Board;
 
 public class Pawn extends Piece {
@@ -64,7 +65,7 @@ public class Pawn extends Piece {
                 mt = MoveType.ADVANCE;
             } else if (!this.hasMoved()
                        && src.forwardDistanceTo(dest) == 2
-                       && b.openForwardWalk(src, dest)) { // move 2 from start
+                       && b.openWalk(src, dest, Index.Direction.FORWARD)) { // move 2 from start
                 System.out.println(String.format("Pawn to %s.", dest.inChessNotation()));
                 this.wasEager = true;
                 mt = MoveType.ADVANCE;

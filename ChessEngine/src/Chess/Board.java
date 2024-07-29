@@ -69,60 +69,6 @@ public class Board {
         return this.pieceAt(i.getPos());
     }
 
-    public boolean openForwardWalk(Index src, Index dest) {
-        int distance = src.forwardDistanceTo(dest);
-        if (!Index.reachable(distance)) {
-            return false;
-        }
-
-        if (distance == 0) {
-            return true;
-        }
-
-        try {
-            for (int i = 0; i < distance - 1; i++) {
-                src = src.forward(1);
-                if (this.pieceAt(src)) {
-                    return false;
-                }
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            /* This should never be reached...but safeguards against an endless
-               loop. */
-            System.out.println(String.format("This code should be unreachable! Exception: %d", e));
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean openBackwardWalk(Index src, Index dest) {
-        int distance = src.backwardDistanceTo(dest);
-        if (!Index.reachable(distance)) {
-            return false;
-        }
-
-        if (distance == 0) {
-            return true;
-        }
-
-        try {
-            for (int i = 0; i < distance - 1; i++) {
-                src = src.backward(1);
-                if (this.pieceAt(src)) {
-                    return false;
-                }
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            /* This should never be reached...but safeguards against an endless
-               loop. */
-            System.out.println(String.format("This code should be unreachable! Exception: %d", e));
-            return false;
-        }
-
-        return true;
-    }
-
     public boolean openWalk(Index src, Index dest, Index.Direction d) {
         int distance = -1;
         switch (d) {
@@ -138,6 +84,12 @@ public class Board {
         case Index.Direction.RIGHT:
             distance = src.rightDistanceTo(dest);
             break;
+        case Index.Direction.QUADRANT_I:
+        case Index.Direction.QUADRANT_II:
+        case Index.Direction.QUADRANT_III:
+        case Index.Direction.QUADRANT_IV:
+            distance = src.diagnolDistanceTo(dest);
+            break;
         }
 
         if (!Index.reachable(distance)) {
@@ -150,6 +102,7 @@ public class Board {
 
         try {
             for (int i = 0; i < distance - 1; i++) {
+
                 switch (d) {
                 case Index.Direction.FORWARD:
                     src = src.forward(1);
@@ -163,6 +116,18 @@ public class Board {
                 case Index.Direction.RIGHT:
                     src = src.right(1);
                     break;
+                case Index.Direction.QUADRANT_I:
+                case Index.Direction.QUADRANT_II:
+                case Index.Direction.QUADRANT_III:
+                case Index.Direction.QUADRANT_IV:
+                    src = src.diagnol(1, d);
+                    // below is critical! big headache lies in wait if this is not understood.
+                    // if we leave the diagnol that src and dest originally had, OR we are
+                    // getting further away from it on the same diagnol! we leave
+                    if (!src.onSameDiagnol(dest) || src.diagnolDistanceTo(dest) > distance) {
+                        return false;
+                    }
+                    break;
                 }
 
                 if (this.pieceAt(src)) {
@@ -172,7 +137,7 @@ public class Board {
         } catch (ArrayIndexOutOfBoundsException e) {
             /* This should never be reached...but safeguards against an endless
                loop. */
-            System.out.println(String.format("This code should be unreachable! Exception: %d", e));
+            System.out.println(String.format("This code should be unreachable!"));
             return false;
         }
 

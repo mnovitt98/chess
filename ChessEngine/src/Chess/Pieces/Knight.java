@@ -26,15 +26,14 @@ public class Knight extends Piece {
             return MoveType.INVALID;
         }
 
-        if (   (src.forward(2).left(1).equals(dest))
-            || (src.forward(2).right(1).equals(dest))
-            || (src.backward(2).left(1).equals(dest))
-            || (src.backward(2).right(1).equals(dest))
-
-            || (src.left(2).forward(1).equals(dest))
-            || (src.left(2).backward(1).equals(dest))
-            || (src.right(2).forward(1).equals(dest))
-            || (src.right(2).backward(1).equals(dest))) {
+        if (src.forward(2).left(1).equals(dest)
+            || src.forward(2).right(1).equals(dest)
+            || src.backward(2).left(1).equals(dest)
+            || src.backward(2).right(1).equals(dest)
+            || src.left(2).forward(1).equals(dest)
+            || src.left(2).backward(1).equals(dest)
+            || src.right(2).forward(1).equals(dest)
+            || src.right(2).backward(1).equals(dest)) {
             System.out.println(String.format("Knight %s %s", attacking ? "takes" : "to", dest.inChessNotation()));
             mt = attacking ? MoveType.CAPTURE : MoveType.ADVANCE;
         }

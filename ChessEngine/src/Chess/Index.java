@@ -11,10 +11,10 @@ public class Index {
         BACKWARD,
         LEFT,
         RIGHT,
-        I_DIAGNOL,
-        II_DIAGNOL,
-        III_DIAGNOL,
-        IV_DIAGNOL
+        QUADRANT_I,
+        QUADRANT_II,
+        QUADRANT_III,
+        QUADRANT_IV
     }
 
     public static int toC(int row, int col) {
@@ -162,10 +162,6 @@ public class Index {
         return distance * this.direction;
     }
 
-    public boolean inFrontOf(Index i) {
-        return Index.reachable(this.forwardDistanceTo(i));
-    }
-
     public Index backward(int numSquares) {
         Index updated = new Index(this);
         updated.setPos(this.pos - this.direction * numSquares * this.numCols);
@@ -177,10 +173,6 @@ public class Index {
 
     public int backwardDistanceTo(Index i) {
         return forwardDistanceTo(i) * -1;
-    }
-
-    public boolean behind(Index i) {
-        return Index.reachable(this.backwardDistanceTo(i));
     }
 
     public Index left(int numSquares) {
@@ -204,10 +196,6 @@ public class Index {
         return distance * this.direction;
     }
 
-    public boolean toTheRightOf(Index i) {
-        return Index.reachable(this.leftDistanceTo(i));
-    }
-
     public Index right(int numSquares) {
         int oldRow = getRow();
         Index updated = new Index(this);
@@ -222,33 +210,39 @@ public class Index {
         return leftDistanceTo(i) * -1;
     }
 
-    public boolean toTheLeftOf(Index i) {
-        return Index.reachable(this.rightDistanceTo(i));
-    }
-
-    public Index diagnol(int numSquares, int quadrant) {
-        for (int i = 0; i < numSquares; i++) {
-            /* Quadrants:
-               II  I
-               III IV
-            */
-            if (quadrant == 2) {
-                return this.backward(1).right(1);
-            } else if (quadrant == 1) {
-                return this.backward(1).left(1);
-            } else if (quadrant == 4) {
-                return this.forward(1).right(1);
-            } else {
-                return this.forward(1).left(1);
-            }
+    public Index diagnol(int numSquares, Index.Direction quadrant) {
+        Index updated = new Index(this);
+        switch (quadrant) {
+        case Index.Direction.QUADRANT_I:
+            updated.setPos(this.getPos() - (numSquares * (this.numCols + 1)));
+            break;
+        case Index.Direction.QUADRANT_II:
+            updated.setPos(this.getPos() - (numSquares * (this.numCols - 1)));
+            break;
+        case Index.Direction.QUADRANT_III:
+            updated.setPos(this.getPos() + (numSquares * (this.numCols - 1)));
+            break;
+        case Index.Direction.QUADRANT_IV:
+            updated.setPos(this.getPos() + (numSquares * (this.numCols + 1)));
+            break;
         }
 
-        return new Index(-1);
+        if (updated.outOfBounds()){
+            return new Index(-1);
+        }
+
+        return updated;
     }
 
-    public int diagnolDistanceTo() {
-        /* TODO: work this out */
-        return Index.INFINITY;
+    public int diagnolDistanceTo(Index i) {
+        int distance = 0;
+        if (!this.onSameDiagnol(i)) {
+            distance = Index.INFINITY;
+        } else {
+            distance = Math.abs(this.getRow() - i.getRow());
+        }
+
+        return distance;
     }
 
     /* representation */
