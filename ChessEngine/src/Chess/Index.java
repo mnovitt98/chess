@@ -1,7 +1,6 @@
 package chess;
 
 import java.lang.ArrayIndexOutOfBoundsException;
-
 import chess.pieces.Piece;
 
 public class Index {
@@ -64,7 +63,7 @@ public class Index {
         this.pos = i.getPos();
         this.direction = p.isLight() ? -1 : 1;
         this.numRows = i.getNumRows();
-        this.numRows = i.getNumCols();
+        this.numCols = i.getNumCols();
     }
 
     /* getters and setters */

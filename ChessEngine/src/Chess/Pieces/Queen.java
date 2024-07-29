@@ -1,8 +1,9 @@
 package chess.pieces;
 
-import chess.Board;
-import chess.Index;
+import chess.pieces.Piece;
 import chess.enums.MoveType;
+import chess.Index;
+import chess.Board;
 
 public class Queen extends Piece {
     public Queen(boolean isLight) {

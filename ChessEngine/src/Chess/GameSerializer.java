@@ -1,7 +1,7 @@
 package chess;
 
 import chess.enums.MoveType;
-import chess.Piece;
+import chess.pieces.Piece;
 import chess.Index;
 
 public class GameSerializer {

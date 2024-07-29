@@ -1,10 +1,11 @@
 package chess;
 
-import chess.Board;
-import chess.Logic;
 import chess.GameSerializer;
 import chess.enums.MoveType;
 import chess.Index;
+import chess.pieces.Piece;
+import chess.Board;
+import chess.Logic;
 
 public class Chess {
     private static final int MAX_MESG_COUNT = 10;

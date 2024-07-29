@@ -4,6 +4,7 @@ import java.lang.ArrayIndexOutOfBoundsException;
 
 import chess.Index;
 import chess.pieces.Piece;
+import chess.pieces.Pawn;
 import chess.pieces.Rook;
 import chess.pieces.Knight;
 import chess.pieces.Bishop;

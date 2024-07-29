@@ -1,9 +1,9 @@
 package chess;
 
-import chess.Board;
-import chess.Piece;
-import chess.Index;
 import chess.enums.MoveType;
+import chess.Index;
+import chess.pieces.Piece;
+import chess.Board;
 
 public class Logic {
     private static boolean DEBUG = true;

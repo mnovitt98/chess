@@ -1,8 +1,8 @@
 package chess.pieces;
 
 import chess.enums.MoveType;
-import chess.Board;
 import chess.Index;
+import chess.Board;
 
 public abstract class Piece {
     public static boolean sameColor(Piece a, Piece b) {
@@ -27,5 +27,5 @@ public abstract class Piece {
         return this.isLight() ? "l" : "d";
     }
 
-    public abstract MoveType isValidMove(Board b, Index src, Index dest);
+    public abstract MoveType isValidMove(Board board, Index src, Index dest);
 }

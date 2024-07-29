@@ -1,9 +1,9 @@
 package chess.pieces;
 
 import chess.enums.MoveType;
-import chess.Piece;
-import chess.Board;
+import chess.pieces.Piece;
 import chess.Index;
+import chess.Board;
 
 public class Pawn extends Piece {
     private static boolean canBeTakenEnPassant(Piece p) {
@@ -12,7 +12,6 @@ public class Pawn extends Piece {
             return false;
         }
         Pawn pa = (Pawn) p;
-        System.out.println("here");
         return pa.wasEager() && pa.getMoveCount() == 1;
     }
 
@@ -43,7 +42,6 @@ public class Pawn extends Piece {
         if (this.isLight()) {
             src = new Index(src, true);
         }
-
 
 
         MoveType mt = MoveType.INVALID;
