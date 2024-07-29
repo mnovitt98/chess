@@ -41,11 +41,13 @@ public class GameSerializer {
         case MoveType.LENPASSANT:
             return new String[]{
                 String.join("|", "REPLACE", p.toString(), dest.toString()),
+                String.join("|", "REMOVE", src.toString()),
                 String.join("|", "REMOVE", (new Index(src, p.isLight())).left(1).toString())
             };
         case MoveType.RENPASSANT:
             return new String[]{
                 String.join("|", "REPLACE", p.toString(), dest.toString()),
+                String.join("|", "REMOVE", src.toString()),
                 String.join("|", "REMOVE", (new Index(src, p.isLight())).right(1).toString())
             };
 

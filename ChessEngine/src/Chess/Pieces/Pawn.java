@@ -7,7 +7,6 @@ import chess.Board;
 
 public class Pawn extends Piece {
     private static boolean canBeTakenEnPassant(Piece p) {
-        System.out.print(p);
         if (p == null) {
             return false;
         }
@@ -37,54 +36,45 @@ public class Pawn extends Piece {
     }
 
     public MoveType isValidMove(Board b, Index src, Index dest) {
-        System.out.println("we have to be here");
         /* need to put this in super so it isnt repeated everywhere */
         if (this.isLight()) {
-            src = new Index(src, true);
+            src = new Index(src, this);
         }
-
 
         MoveType mt = MoveType.INVALID;
         if (src.outOfBounds() || dest.outOfBounds()) {
             return mt;
         }
 
-        System.out.println("are we here");
-        if (b.pieceAt(dest)) { /* attacking */
+        if (b.pieceAt(dest)) { /* standard attacking */
             if (!Piece.sameColor(this, b.getPieceAt(dest))) {
                 // normal capture
                 if (b.pieceAt(src.forward(1).left(1)) == b.pieceAt(dest)
                     || b.pieceAt(src.forward(1).right(1)) == b.pieceAt(dest)) {
-                    System.out.println("reg capture.");
+                    System.out.println(String.format("Pawn takes %s.", dest.inChessNotation()));
                     mt = MoveType.CAPTURE;
                 }
-            } else { /* cant capture a piece of the same color... */
-                System.out.println("Cant capture a piece of the same color.");
+            } else {
+                System.out.println("Invalid: pawn can't capture a piece of the same color.");
                 return MoveType.INVALID;
             }
-            System.out.println("asdfsdfa capture.");
         } else {
-            System.out.println(String.format("%s %s", src, dest));
-            System.out.println(String.format("%s %s", src.forward(1), src.forward(1).left(1)));
-                // 1. regular advance
-            if (src.forward(1).equals(dest)) {
+            if (src.forward(1).equals(dest)) { // regular advance
+                System.out.println(String.format("Pawn to %s.", dest.inChessNotation()));
                 mt = MoveType.ADVANCE;
-                // 2. move 2 from start
             } else if (!this.hasMoved()
                        && src.forwardDistanceTo(dest) == 2
-                       && b.openForwardWalk(src, dest)) {
+                       && b.openForwardWalk(src, dest)) { // move 2 from start
+                System.out.println(String.format("Pawn to %s.", dest.inChessNotation()));
                 this.wasEager = true;
                 mt = MoveType.ADVANCE;
-                // 3. en passant left
-            } else if (src.forward(1).left(1).equals(dest)) {
-                /*                && Pawn.canBeTakenEnPassant(b.getPieceAt(src.left(1)))) {*/
-                System.out.print(String.format("here %s", src.left(1)));
-                System.out.print(b.getPieceAt(src.left(1)));
+            } else if (src.forward(1).left(1).equals(dest)
+                && Pawn.canBeTakenEnPassant(b.getPieceAt(src.left(1)))) { // en passant left
+                System.out.println(String.format("Pawn takes %s.", dest.inChessNotation()));
                 mt = MoveType.LENPASSANT;
-                // 4. en passant right
             } else if (src.forward(1).right(1).equals(dest)
-                && Pawn.canBeTakenEnPassant(b.getPieceAt(src.right(1)))) {
-                System.out.println("in r en");
+                && Pawn.canBeTakenEnPassant(b.getPieceAt(src.right(1)))) { // en passant right
+                System.out.println(String.format("Pawn takes %s.", dest.inChessNotation()));
                 mt = MoveType.RENPASSANT;
             }
         }

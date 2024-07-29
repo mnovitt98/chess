@@ -6,6 +6,16 @@ import chess.pieces.Piece;
 public class Index {
     private static final int INFINITY    = Integer.MAX_VALUE;
     public static final  int DEFAULT_DIM = 8;
+    public static enum Direction {
+        FORWARD,
+        BACKWARD,
+        LEFT,
+        RIGHT,
+        I_DIAGNOL,
+        II_DIAGNOL,
+        III_DIAGNOL,
+        IV_DIAGNOL
+    }
 
     public static int toC(int row, int col) {
         return row*DEFAULT_DIM + col;
@@ -51,6 +61,13 @@ public class Index {
     public Index(Index i, boolean switchDirection) {
         this.pos = i.getPos();
         this.direction = switchDirection ? i.getDirection() * -1 : i.getDirection();
+        this.numRows = i.getNumRows();
+        this.numCols = i.getNumCols();
+    }
+
+    public Index(Index i, int direction) {
+        this.pos = i.getPos();
+        this.direction = direction;
         this.numRows = i.getNumRows();
         this.numCols = i.getNumCols();
     }
@@ -125,9 +142,7 @@ public class Index {
 
     /* methods */
 
-    public Index forward(int numSquares)
-        throws ArrayIndexOutOfBoundsException
-    {
+    public Index forward(int numSquares) {
         Index updated = new Index(this);
         updated.setPos(this.pos + this.direction * numSquares * this.numCols);
         if (updated.outOfBounds()) {
@@ -147,9 +162,11 @@ public class Index {
         return distance * this.direction;
     }
 
-    public Index backward(int numSquares)
-        throws ArrayIndexOutOfBoundsException
-    {
+    public boolean inFrontOf(Index i) {
+        return Index.reachable(this.forwardDistanceTo(i));
+    }
+
+    public Index backward(int numSquares) {
         Index updated = new Index(this);
         updated.setPos(this.pos - this.direction * numSquares * this.numCols);
         if (updated.outOfBounds()) {
@@ -162,9 +179,11 @@ public class Index {
         return forwardDistanceTo(i) * -1;
     }
 
-    public Index left(int numSquares)
-        throws ArrayIndexOutOfBoundsException
-    {
+    public boolean behind(Index i) {
+        return Index.reachable(this.backwardDistanceTo(i));
+    }
+
+    public Index left(int numSquares) {
         int oldRow = getRow();
         Index updated = new Index(this);
         updated.setPos(this.pos + this.direction * numSquares);
@@ -185,9 +204,11 @@ public class Index {
         return distance * this.direction;
     }
 
-    public Index right(int numSquares)
-        throws ArrayIndexOutOfBoundsException
-    {
+    public boolean toTheRightOf(Index i) {
+        return Index.reachable(this.leftDistanceTo(i));
+    }
+
+    public Index right(int numSquares) {
         int oldRow = getRow();
         Index updated = new Index(this);
         updated.setPos(this.pos - this.direction * numSquares);
@@ -201,9 +222,11 @@ public class Index {
         return leftDistanceTo(i) * -1;
     }
 
-    public Index diagnol(int numSquares, int quadrant)
-        throws ArrayIndexOutOfBoundsException
-    {
+    public boolean toTheLeftOf(Index i) {
+        return Index.reachable(this.rightDistanceTo(i));
+    }
+
+    public Index diagnol(int numSquares, int quadrant) {
         for (int i = 0; i < numSquares; i++) {
             /* Quadrants:
                II  I
@@ -230,20 +253,17 @@ public class Index {
 
     /* representation */
 
+    public String inChessNotation() {
+        /* remember row, col starts at "top left" of chess board */
+        return String.format("%c%d", 'a' + this.getCol(), (8 - this.getRow()));
+    }
+
     public int[] toPair() {
         return new int[]{getRow(), getCol()};
     }
 
     public String toString() {
         return String.format("%d", getPos());
-    }
-
-    public String toStringRC() {
-        return String.format("(%d, %d)", getRow(), getCol());
-    }
-
-    public String toStringDim() {
-        return String.format("(%d, %d)", getNumRows(), getNumCols());
     }
 
     public void printOnBoard() {

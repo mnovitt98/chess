@@ -96,6 +96,89 @@ public class Board {
         return true;
     }
 
+    public boolean openBackwardWalk(Index src, Index dest) {
+        int distance = src.backwardDistanceTo(dest);
+        if (!Index.reachable(distance)) {
+            return false;
+        }
+
+        if (distance == 0) {
+            return true;
+        }
+
+        try {
+            for (int i = 0; i < distance - 1; i++) {
+                src = src.backward(1);
+                if (this.pieceAt(src)) {
+                    return false;
+                }
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            /* This should never be reached...but safeguards against an endless
+               loop. */
+            System.out.println(String.format("This code should be unreachable! Exception: %d", e));
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean openWalk(Index src, Index dest, Index.Direction d) {
+        int distance = -1;
+        switch (d) {
+        case Index.Direction.FORWARD:
+            distance = src.forwardDistanceTo(dest);
+            break;
+        case Index.Direction.BACKWARD:
+            distance = src.backwardDistanceTo(dest);
+            break;
+        case Index.Direction.LEFT:
+            distance = src.leftDistanceTo(dest);
+            break;
+        case Index.Direction.RIGHT:
+            distance = src.rightDistanceTo(dest);
+            break;
+        }
+
+        if (!Index.reachable(distance)) {
+            return false;
+        }
+
+        if (distance == 0) {
+            return true;
+        }
+
+        try {
+            for (int i = 0; i < distance - 1; i++) {
+                switch (d) {
+                case Index.Direction.FORWARD:
+                    src = src.forward(1);
+                    break;
+                case Index.Direction.BACKWARD:
+                    src = src.backward(1);
+                    break;
+                case Index.Direction.LEFT:
+                    src = src.left(1);
+                    break;
+                case Index.Direction.RIGHT:
+                    src = src.right(1);
+                    break;
+                }
+
+                if (this.pieceAt(src)) {
+                    return false;
+                }
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            /* This should never be reached...but safeguards against an endless
+               loop. */
+            System.out.println(String.format("This code should be unreachable! Exception: %d", e));
+            return false;
+        }
+
+        return true;
+    }
+
     public void printBoard() {
         System.out.println();
         for (int i = 0; i < 8; i++) {

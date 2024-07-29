@@ -25,10 +25,12 @@ public class Driver {
 
         Chess game = new Chess();
         while (true) {
+            System.out.println();
             String mesg = ws.readMesg(client);
             if (mesg == null) {
                 break;
             }
+            System.out.println();
 
             for (String s : game.getInstructions(mesg)) {
                 if (s != null) { // this should always be returing at least one message

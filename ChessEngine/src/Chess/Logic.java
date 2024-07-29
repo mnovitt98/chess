@@ -27,6 +27,7 @@ public class Logic {
 
         case MoveType.LENPASSANT:
             b.setPieceAt(dest, p);
+            b.setPieceAt(src, null);
             b.setPieceAt((new Index(src, p)).left(1), null);
             break;
         }
