@@ -11,32 +11,23 @@ public class Queen extends Piece {
     }
 
     public MoveType isValidMove(Board b, Index src, Index dest) {
+        MoveType mt = super.isValidMove(b, src, dest);
+        if (mt == MoveType.INVALID) {
+            return mt;
+        }
+        mt = MoveType.INVALID;
         if (this.isLight()) {
             src = new Index(src, this);
         }
 
-        MoveType mt = MoveType.INVALID;
-        if (src.outOfBounds() || dest.outOfBounds()) {
-            return mt;
-        }
-
         boolean attacking = b.pieceAt(dest);
-        if (attacking && Piece.sameColor(this, b.getPieceAt(dest))) {
-            System.out.println("Invalid: Bishop can't capture a piece of the same color.");
-            return MoveType.INVALID;
+        if ((new Rook(this.isLight()).isValidMove(b, src, dest)) != MoveType.INVALID
+            || (new Bishop(this.isLight()).isValidMove(b, src, dest)) != MoveType.INVALID) {
+            mt = attacking ? MoveType.CAPTURE : MoveType.ADVANCE;
         }
 
-        // should try to reuse rook and bishop code here, same with king
-        if (((b.openWalk(src, dest, Index.Direction.BACKWARD))
-            || (b.openWalk(src, dest, Index.Direction.FORWARD))
-            || (b.openWalk(src, dest, Index.Direction.LEFT))
-            || (b.openWalk(src, dest, Index.Direction.RIGHT)))
-            || (b.openWalk(src, dest, Index.Direction.QUADRANT_I))
-            || (b.openWalk(src, dest, Index.Direction.QUADRANT_II))
-            || (b.openWalk(src, dest, Index.Direction.QUADRANT_III))
-            || (b.openWalk(src, dest, Index.Direction.QUADRANT_IV))) {
+        if (mt != MoveType.INVALID) {
             System.out.println(String.format("Queen %s %s", attacking ? "takes" : "to", dest.inChessNotation()));
-            mt = attacking ? MoveType.CAPTURE : MoveType.ADVANCE;
         }
 
         return mt;

@@ -4,7 +4,7 @@ import chess.enums.MoveType;
 import chess.Index;
 import chess.Board;
 
-public abstract class Piece {
+public class Piece {
     public static boolean sameColor(Piece a, Piece b) {
         return a.isLight() == b.isLight();
     }
@@ -27,5 +27,18 @@ public abstract class Piece {
         return this.isLight() ? "l" : "d";
     }
 
-    public abstract MoveType isValidMove(Board board, Index src, Index dest);
+    public MoveType isValidMove(Board b, Index src, Index dest) {
+        MoveType mt = null;
+        if (src.outOfBounds() || dest.outOfBounds()) {
+            return MoveType.INVALID;
+        }
+
+        boolean attacking = b.pieceAt(dest);
+        if (attacking && Piece.sameColor(this, b.getPieceAt(dest))) {
+            System.out.println("Invalid: can't capture a piece of the same color.");
+            return MoveType.INVALID;
+        }
+
+        return mt;
+    }
 }

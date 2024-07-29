@@ -18,17 +18,22 @@ public class Logic {
 
         /* this will eventually also need to add pieces to their respective
            "graveyards". board should track this state */
+
         switch (m) {
         case MoveType.CAPTURE:
         case MoveType.ADVANCE:
             b.setPieceAt(src, null);
             b.setPieceAt(dest, p);
             break;
-
         case MoveType.LENPASSANT:
             b.setPieceAt(dest, p);
             b.setPieceAt(src, null);
             b.setPieceAt((new Index(src, p)).left(1), null);
+            break;
+        case MoveType.RENPASSANT:
+            b.setPieceAt(dest, p);
+            b.setPieceAt(src, null);
+            b.setPieceAt((new Index(src, p)).right(1), null);
             break;
         }
 
@@ -40,7 +45,7 @@ public class Logic {
     }
 
     /* TODO */
-    // public static MoveType provessPromotion()
+    // public static MoveType processPromotion()
 
     public Logic() {}
 }

@@ -42,11 +42,11 @@ public class Board {
     }
 
     public Piece getPieceAt(int srcIndex) {
-        return (srcIndex < 1) ? null : board[srcIndex];
+        return (srcIndex < 0) ? null : board[srcIndex];
     }
 
     public Piece getPieceAt(Index src) {
-        return (src.getPos() < 1) ? null : board[src.getPos()];
+        return (src.getPos() < 0) ? null : board[src.getPos()];
     }
 
     public Piece setPieceAt(int srcIndex, Piece p) {
@@ -121,12 +121,14 @@ public class Board {
                 case Index.Direction.QUADRANT_III:
                 case Index.Direction.QUADRANT_IV:
                     src = src.diagnol(1, d);
+
                     // below is critical! big headache lies in wait if this is not understood.
                     // if we leave the diagnol that src and dest originally had, OR we are
-                    // getting further away from it on the same diagnol! we leave
+                    // getting further away from it on the same diagnol we exit
                     if (!src.onSameDiagnol(dest) || src.diagnolDistanceTo(dest) > distance) {
                         return false;
                     }
+
                     break;
                 }
 

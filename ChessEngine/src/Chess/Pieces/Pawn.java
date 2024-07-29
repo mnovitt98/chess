@@ -37,14 +37,13 @@ public class Pawn extends Piece {
     }
 
     public MoveType isValidMove(Board b, Index src, Index dest) {
-        /* need to put this in super so it isnt repeated everywhere */
+        MoveType mt = super.isValidMove(b, src, dest);
+        if (mt == MoveType.INVALID) {
+            return mt;
+        }
+        mt = MoveType.INVALID;
         if (this.isLight()) {
             src = new Index(src, this);
-        }
-
-        MoveType mt = MoveType.INVALID;
-        if (src.outOfBounds() || dest.outOfBounds()) {
-            return mt;
         }
 
         if (b.pieceAt(dest)) { /* standard attacking */
