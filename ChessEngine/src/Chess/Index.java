@@ -1,12 +1,11 @@
 package chess;
 
 import java.lang.ArrayIndexOutOfBoundsException;
-import chess.pieces.Piece;
 
 public class Index {
     private static final int INFINITY    = Integer.MAX_VALUE;
-    public static final  int DEFAULT_DIM = 8;
-    public static enum Direction {
+    public  static final int DEFAULT_DIM = 8;
+    public  static enum  Direction {
         FORWARD,
         BACKWARD,
         LEFT,
@@ -25,7 +24,7 @@ public class Index {
         return distance > 0 && distance != Index.INFINITY;
     }
 
-    private int direction;
+    private int orientation;
     private int pos;
     private int numRows;
     private int numCols;
@@ -42,46 +41,33 @@ public class Index {
 
     /* constructors */
 
-    public Index(int position, boolean direction, int numRows, int numCols) {
-        this(position, direction);
+    // int parameters
+    public Index(int position) {
+        this(position, true);
+    }
+
+    public Index(int position, boolean defaultOrientation) {
+        this.pos = position;
+        this.orientation = defaultOrientation ? 1 : -1;
+        this.numRows = this.numCols = Index.DEFAULT_DIM;
+    }
+
+    public Index(int position, boolean defaultOrientation, int numRows, int numCols) {
+        this(position, defaultOrientation);
         this.numRows = numRows;
         this.numCols = numCols;
     }
 
-    public Index(int position, boolean switchDirection) {
-        this.pos = position;
-        this.direction = switchDirection ? -1 : 1;
-        this.numRows = this.numCols = Index.DEFAULT_DIM;
-    }
-
-    public Index(int position) {
-        this(position, false);
-    }
-
-    public Index(Index i, boolean switchDirection) {
-        this.pos = i.getPos();
-        this.direction = switchDirection ? i.getDirection() * -1 : i.getDirection();
-        this.numRows = i.getNumRows();
-        this.numCols = i.getNumCols();
-    }
-
-    public Index(Index i, int direction) {
-        this.pos = i.getPos();
-        this.direction = direction;
-        this.numRows = i.getNumRows();
-        this.numCols = i.getNumCols();
-    }
-
+    // index parameters
     public Index(Index i) {
-        this(i, false);
-    }
-
-    public Index(Index i, Piece p) {
         this.pos = i.getPos();
-        this.direction = p.isLight() ? -1 : 1;
+        this.orientation = i.getOrientation();
         this.numRows = i.getNumRows();
         this.numCols = i.getNumCols();
     }
+
+    // does not include a constructor that intakes an index as well as row and col
+    // specification - differing in dimension is too drastic a difference
 
     /* getters and setters */
 
@@ -89,8 +75,8 @@ public class Index {
         return this.pos;
     }
 
-    public int getDirection() {
-        return this.direction;
+    public int getOrientation() {
+        return this.orientation;
     }
 
     public int getNumRows() {
@@ -113,11 +99,23 @@ public class Index {
         this.pos = pos;
     }
 
+    public void switchOrientation() {
+        this.orientation *= -1;
+    }
+
+    public void setDefaultOrientation() {
+        this.orientation = 1;
+    }
+
+    public void setSwitchOrientation() {
+        this.orientation = -1;
+    }
+
     /* predicates */
 
     public boolean equals(Index other) {
         /* this is not canonical, should accept Object type and check for specific type
-           ONLY CONCERNED ABOUT LOCATION NOT DIRECTION */
+           ONLY CONCERNED ABOUT LOCATION NOT ORIENTATION */
         return this.getPos() == other.getPos()
             && this.getNumRows() == other.getNumRows()
             && this.getNumCols() == other.getNumCols();
@@ -140,11 +138,15 @@ public class Index {
             == Math.abs(this.getCol() - other.getCol());
     }
 
+    public boolean isKingSide() {
+        return this.getCol() >= 4;
+    }
+
     /* methods */
 
     public Index forward(int numSquares) {
         Index updated = new Index(this);
-        updated.setPos(this.pos + this.direction * numSquares * this.numCols);
+        updated.setPos(this.pos + this.orientation * numSquares * this.numCols);
         if (updated.outOfBounds()) {
             return new Index(-1);
         }
@@ -159,12 +161,12 @@ public class Index {
             distance = i.getRow() - this.getRow();
         }
 
-        return distance * this.direction;
+        return distance * this.orientation;
     }
 
     public Index backward(int numSquares) {
         Index updated = new Index(this);
-        updated.setPos(this.pos - this.direction * numSquares * this.numCols);
+        updated.setPos(this.pos - this.orientation * numSquares * this.numCols);
         if (updated.outOfBounds()) {
             return new Index(-1);
         }
@@ -178,7 +180,7 @@ public class Index {
     public Index left(int numSquares) {
         int oldRow = getRow();
         Index updated = new Index(this);
-        updated.setPos(this.pos + this.direction * numSquares);
+        updated.setPos(this.pos + this.orientation * numSquares);
         if (updated.outOfBounds() || updated.getRow() != oldRow) { /* fell off the side of the board */
             return new Index(-1);
         }
@@ -193,13 +195,13 @@ public class Index {
             distance = i.getCol() - this.getCol();
         }
 
-        return distance * this.direction;
+        return distance * this.orientation;
     }
 
     public Index right(int numSquares) {
         int oldRow = getRow();
         Index updated = new Index(this);
-        updated.setPos(this.pos - this.direction * numSquares);
+        updated.setPos(this.pos - this.orientation * numSquares);
         if (updated.outOfBounds() || updated.getRow() != oldRow) { /* fell off the side of the board */
             return new Index(-1);
         }

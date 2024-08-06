@@ -33,7 +33,7 @@ public class Pawn extends Piece {
         }
         mt = MoveType.INVALID;
         if (this.isLight()) {
-            src = new Index(src, this);
+            src.setSwitchOrientation();
         }
 
         if (b.pieceAt(dest)) { /* standard attacking */

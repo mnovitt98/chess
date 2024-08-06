@@ -17,7 +17,7 @@ public class Bishop extends Piece {
         }
         mt = MoveType.INVALID;
         if (this.isLight()) {
-            src = new Index(src, this);
+            src.setSwitchOrientation();
         }
 
         boolean attacking = b.pieceAt(dest);

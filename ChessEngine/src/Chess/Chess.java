@@ -34,6 +34,14 @@ public class Chess {
         } else if (mesgd[0].equals("PROMOTE")) {
             // TODO
             ;
+        } else if (mesgd[0].equals("RESET")) {
+            System.out.println("Reseting game.");
+            this.board = new Board();
+            this.logic = new Logic();
+            return new String[]{"RESET"};
+        } else {
+            // error
+            ;
         }
 
         return GameSerializer.serializeMove(m, p, src, dest);

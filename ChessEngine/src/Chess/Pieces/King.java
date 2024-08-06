@@ -17,12 +17,12 @@ public class King extends Piece {
         }
         mt = MoveType.INVALID;
         if (this.isLight()) {
-            src = new Index(src, this);
+            src.setSwitchOrientation();
         }
 
         /* handle castling */
 
-        boolean attacking = b.pieceAt(dest);
+        boolean attacking = b.isAttackingMove(dest);
         if (src.forward(1).equals(dest)
             || src.backward(1).equals(dest)
             || src.left(1).equals(dest)

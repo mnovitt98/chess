@@ -85,6 +85,15 @@ class ChessBoardState extends ChangeNotifier {
     ws.sink.add(serializeMove(srcIndex, destIndex, _pieces[srcIndex]));
   }
 
+  void resetBoard() async {
+    await ws.ready;
+    ws.sink.add(serializeMove(-1, -1, null));
+  }
+
+  void clearBoard() {
+       _pieces = List.from(initBoardState);
+  }
+
   void setPiece(int atIndex, Piece? p) {
        _pieces[atIndex] = p;
   }
@@ -107,11 +116,5 @@ class ChessBoardState extends ChangeNotifier {
       return null;
     }
     return pieceImgs[_pieces[index]];
-  }
-
-  void resetBoard() {
-    /* will need to add a call here that sends a message to backend to reset... */
-    _pieces = List.from(initBoardState);
-    notifyListeners();
   }
 }

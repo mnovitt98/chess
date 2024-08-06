@@ -19,6 +19,10 @@ public class Logic {
         /* this will eventually also need to add pieces to their respective
            "graveyards". board should track this state */
 
+        if (p.isLight()) {
+            src.setSwitchOrientation();
+        }
+
         switch (m) {
         case MoveType.CAPTURE:
         case MoveType.ADVANCE:
@@ -28,12 +32,12 @@ public class Logic {
         case MoveType.LENPASSANT:
             b.setPieceAt(dest, p);
             b.setPieceAt(src, null);
-            b.setPieceAt((new Index(src, p)).left(1), null);
+            b.setPieceAt(src.left(1), null);
             break;
         case MoveType.RENPASSANT:
             b.setPieceAt(dest, p);
             b.setPieceAt(src, null);
-            b.setPieceAt((new Index(src, p)).right(1), null);
+            b.setPieceAt(src.right(1), null);
             break;
         }
 

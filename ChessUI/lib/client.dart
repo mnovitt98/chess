@@ -14,8 +14,14 @@ WebSocketChannel getWebSocket(int port, callback) {
 
 
 String serializeMove(int srcIndex, int destIndex, Piece? p) {
-  String s = "MOVE|${srcIndex}|${destIndex}";
-  print("Sending $s");
+  String s = "";
+  if (srcIndex == -1 && destIndex == -1 && p == null) {
+    s = "RESET";
+    print("Sending reset");
+  } else {
+    s = "MOVE|${srcIndex}|${destIndex}";
+    print("Sending $s");
+  }
   return s;
 }
 
@@ -38,8 +44,11 @@ void deserializeMove(String s, ChessBoardState bs) {
   case "WINNER":
     break;
   case "INVALID":
-    print("Last move submitted was invalid, doing nothing.");
     bs.resetLastSelected();
+    bs.notifyListeners();
+  case "RESET":
+    print("Game reseting");
+    bs.clearBoard();
     bs.notifyListeners();
   case "COMPLETE":
     bs.notifyListeners();

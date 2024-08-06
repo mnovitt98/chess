@@ -21,12 +21,12 @@ public class Piece {
         return this.isLight;
     }
 
-    public int getMoveCount() {
-        return this.moveCount;
-    }
-
     public boolean hasMoved() {
         return this.getMoveCount() > 0;
+    }
+
+    public int getMoveCount() {
+        return this.moveCount;
     }
 
     public String toString() {
