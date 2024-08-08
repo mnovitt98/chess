@@ -10,18 +10,8 @@ public class King extends Piece {
         super(isLight);
     }
 
-    public MoveType isValidMove(Board b, Index src, Index dest) {
-        MoveType mt = super.isValidMove(b, src, dest);
-        if (mt == MoveType.INVALID) {
-            return mt;
-        }
-        mt = MoveType.INVALID;
-        if (this.isLight()) {
-            src.setSwitchOrientation();
-        }
-
-        /* handle castling */
-
+    public MoveType _isValidMove(Board b, Index src, Index dest) {
+        MoveType mt = MoveType.INVALID;
         boolean attacking = b.isAttackingMove(dest);
 
         if (!attacking) {
@@ -59,7 +49,10 @@ public class King extends Piece {
     }
 
     public boolean kingsideCastle(Board b, Index src, Index dest) {
-        // if light, reverse (queenside == kingside castle)
+        // this is done with white orientation in mind, could just as easily
+        // be done with black orientation - right would need to be substituted for
+        // left below
+        src.setSwitchOrientation();
 
         System.out.println(String.format("src %s dest %s", src.inChessNotation(), dest.inChessNotation()));
 
@@ -84,7 +77,31 @@ public class King extends Piece {
     }
 
     public boolean queenSideCastle(Board b, Index src, Index dest) {
-        return true;
+        // this is done with white orientation in mind, could just as easily
+        // be done with black orientation - right would need to be substituted for
+        // left below
+        src.setSwitchOrientation();
+
+        System.out.println(String.format("src %s dest %s", src.inChessNotation(), dest.inChessNotation()));
+
+        // first order of business, check that the king and rook
+        // are valid candidates for castling
+        Index edgeOfBoard = new Index(src.left(4));
+        Piece p = b.getPieceAt(edgeOfBoard);
+        if (!this.isCastleCandidate()
+            || !((p instanceof Rook) && ((Rook) p).isCastleCandidate())) {
+            return false;
+        }
+
+        // we now know that the king is at its starting location,
+        // that is, it is at src
+
+        System.out.println("Rook is a good candidate");
+
+        // then check open walk and check
+        return !dest.isKingSide()
+            && src.left(2).equals(dest)
+            && b.openWalk(src, edgeOfBoard, Index.Direction.LEFT);
     }
 
     public String toString() {

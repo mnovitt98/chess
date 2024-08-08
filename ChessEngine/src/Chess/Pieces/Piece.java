@@ -4,7 +4,7 @@ import chess.enums.MoveType;
 import chess.Index;
 import chess.Board;
 
-public class Piece {
+public abstract class Piece {
     public static boolean sameColor(Piece a, Piece b) {
         return a.isLight() == b.isLight();
     }
@@ -38,7 +38,10 @@ public class Piece {
     }
 
     public MoveType isValidMove(Board b, Index src, Index dest) {
-        MoveType mt = null;
+        if (this.isLight()) {
+            src.setSwitchOrientation();
+        } // this only works because Index is not passed by value
+
         if (src.outOfBounds() || dest.outOfBounds()) {
             return MoveType.INVALID;
         }
@@ -48,9 +51,13 @@ public class Piece {
             return MoveType.INVALID;
         }
 
+        MoveType mt = _isValidMove(b, src, dest);
+        if (mt != MoveType.INVALID) {
+            this.moveCount++;
+        }
+
         return mt;
     }
 
-    // need some method that does what isValidMove is already doing, but also call the child or "next"
-    // is valid move with the src index switched to the right orientation for the piece
+    public abstract MoveType _isValidMove(Board b, Index src, Index dest);
 }

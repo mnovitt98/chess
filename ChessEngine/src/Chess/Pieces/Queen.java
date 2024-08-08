@@ -10,16 +10,8 @@ public class Queen extends Piece {
         super(isLight);
     }
 
-    public MoveType isValidMove(Board b, Index src, Index dest) {
-        MoveType mt = super.isValidMove(b, src, dest);
-        if (mt == MoveType.INVALID) {
-            return mt;
-        }
-        mt = MoveType.INVALID;
-        if (this.isLight()) {
-            src.setSwitchOrientation();
-        }
-
+    public MoveType _isValidMove(Board b, Index src, Index dest) {
+        MoveType mt = MoveType.INVALID;
         boolean attacking = b.pieceAt(dest);
         if ((new Rook(this.isLight()).isValidMove(b, src, dest)) != MoveType.INVALID
             || (new Bishop(this.isLight()).isValidMove(b, src, dest)) != MoveType.INVALID) {

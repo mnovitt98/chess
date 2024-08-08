@@ -10,16 +10,8 @@ public class Knight extends Piece {
         super(isLight);
     }
 
-    public MoveType isValidMove(Board b, Index src, Index dest) {
-        MoveType mt = super.isValidMove(b, src, dest);
-        if (mt == MoveType.INVALID) {
-            return mt;
-        }
-        mt = MoveType.INVALID;
-        if (this.isLight()) {
-            src.setSwitchOrientation();
-        }
-
+    public MoveType _isValidMove(Board b, Index src, Index dest) {
+        MoveType mt = MoveType.INVALID;
         boolean attacking = b.pieceAt(dest);
         if (src.forward(2).left(1).equals(dest)
             || src.forward(2).right(1).equals(dest)

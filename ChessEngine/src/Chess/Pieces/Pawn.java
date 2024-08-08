@@ -26,16 +26,8 @@ public class Pawn extends Piece {
         return this.wasEager;
     }
 
-    public MoveType isValidMove(Board b, Index src, Index dest) {
-        MoveType mt = super.isValidMove(b, src, dest);
-        if (mt == MoveType.INVALID) {
-            return mt;
-        }
-        mt = MoveType.INVALID;
-        if (this.isLight()) {
-            src.setSwitchOrientation();
-        }
-
+    public MoveType _isValidMove(Board b, Index src, Index dest) {
+        MoveType mt = MoveType.INVALID;
         if (b.pieceAt(dest)) { /* standard attacking */
             if (!Piece.sameColor(this, b.getPieceAt(dest))) {
                 // normal capture
@@ -67,10 +59,6 @@ public class Pawn extends Piece {
                 System.out.println(String.format("Pawn takes %s.", dest.inChessNotation()));
                 mt = MoveType.RENPASSANT;
             }
-        }
-
-        if (mt != MoveType.INVALID) {
-            this.moveCount++;
         }
 
         return mt;

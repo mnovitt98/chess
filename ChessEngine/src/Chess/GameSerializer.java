@@ -66,8 +66,14 @@ public class GameSerializer {
                 "COMPLETE"
             };
 
+        case MoveType.QCASTLE:
+            return new String[]{
+                String.join("|", "REPLACE", p.toString(), dest.toString()),
+                String.join("|", "REMOVE", src.toString()),
+                "COMPLETE"
+            };
+
          /* TODO */
-         case MoveType.QCASTLE:
          case MoveType.PROMOTION:
              break;
         }
