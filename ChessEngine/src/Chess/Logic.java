@@ -39,6 +39,9 @@ public class Logic {
             b.setPieceAt(src, null);
             b.setPieceAt(src.right(1), null);
             break;
+        case MoveType.KCASTLE:
+            b.setPieceAt(dest, p);
+            b.setPieceAt(src, null);
         }
 
         if (Logic.DEBUG) {

@@ -50,4 +50,7 @@ public class Piece {
 
         return mt;
     }
+
+    // need some method that does what isValidMove is already doing, but also call the child or "next"
+    // is valid move with the src index switched to the right orientation for the piece
 }

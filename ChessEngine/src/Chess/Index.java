@@ -24,8 +24,8 @@ public class Index {
         return distance > 0 && distance != Index.INFINITY;
     }
 
-    private int orientation;
     private int pos;
+    private int orientation;
     private int numRows;
     private int numCols;
 

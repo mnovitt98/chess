@@ -35,6 +35,15 @@ public class Rook extends Piece {
         return mt;
     }
 
+    public boolean isCastleCandidate() {
+        if (this.hasMoved()) {
+            System.out.println("The rook has already moved, invalid castle.");
+            return false;
+        }
+
+        return true;
+    }
+
     public String toString() {
         return super.toString() + "Rook";
     }

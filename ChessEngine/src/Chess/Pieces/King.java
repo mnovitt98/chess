@@ -23,6 +23,17 @@ public class King extends Piece {
         /* handle castling */
 
         boolean attacking = b.isAttackingMove(dest);
+
+        if (!attacking) {
+            System.out.println("This is not an attacking move.");
+            if (kingsideCastle(b, src, dest)) {
+                return MoveType.KCASTLE;
+            }
+            if (queenSideCastle(b, src, dest)) {
+                return MoveType.QCASTLE;
+            }
+        }
+
         if (src.forward(1).equals(dest)
             || src.backward(1).equals(dest)
             || src.left(1).equals(dest)
@@ -36,6 +47,44 @@ public class King extends Piece {
         }
 
         return mt;
+    }
+
+    public boolean isCastleCandidate() {
+        if (this.hasMoved()) {
+            System.out.println("King has already moved, invalid castle.");
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean kingsideCastle(Board b, Index src, Index dest) {
+        // if light, reverse (queenside == kingside castle)
+
+        System.out.println(String.format("src %s dest %s", src.inChessNotation(), dest.inChessNotation()));
+
+        // first order of business, check that the king and rook
+        // are valid candidates for castling
+        Index edgeOfBoard = new Index(src.right(3));
+        Piece p = b.getPieceAt(edgeOfBoard);
+        if (!this.isCastleCandidate()
+            || !((p instanceof Rook) && ((Rook) p).isCastleCandidate())) {
+            return false;
+        }
+
+        // we now know that the king is at its starting location,
+        // that is, it is at src
+
+        System.out.println("Rook is a good candidate");
+
+        // then check open walk and check
+        return dest.isKingSide()
+            && src.right(2).equals(dest)
+            && b.openWalk(src, edgeOfBoard, Index.Direction.RIGHT);
+    }
+
+    public boolean queenSideCastle(Board b, Index src, Index dest) {
+        return true;
     }
 
     public String toString() {
