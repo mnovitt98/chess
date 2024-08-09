@@ -44,6 +44,6 @@ public class Chess {
             ;
         }
 
-        return GameSerializer.serializeMove(m, p, src, dest);
+        return GameSerializer.serializeMove(this.board, m, p, src, dest);
     }
 }

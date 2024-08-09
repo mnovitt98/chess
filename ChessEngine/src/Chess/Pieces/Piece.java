@@ -38,10 +38,7 @@ public abstract class Piece {
     }
 
     public MoveType isValidMove(Board b, Index src, Index dest) {
-        if (this.isLight()) {
-            src.setSwitchOrientation();
-        } // this only works because Index is not passed by value
-
+        // base checks pertinent to all piece types
         if (src.outOfBounds() || dest.outOfBounds()) {
             return MoveType.INVALID;
         }
@@ -50,6 +47,10 @@ public abstract class Piece {
             System.out.println("Invalid: can't capture a piece of the same color.");
             return MoveType.INVALID;
         }
+
+        if (this.isLight()) {
+            src.setSwitchOrientation();
+        } // now _isValidMove will receive src correctly oriented
 
         MoveType mt = _isValidMove(b, src, dest);
         if (mt != MoveType.INVALID) {

@@ -3,6 +3,7 @@ package chess;
 import chess.enums.MoveType;
 import chess.Index;
 import chess.pieces.Piece;
+import chess.pieces.King;
 import chess.Board;
 
 public class Logic {
@@ -23,6 +24,7 @@ public class Logic {
             src.setSwitchOrientation();
         }
 
+        Index rsrc, rdst;
         switch (m) {
         case MoveType.CAPTURE:
         case MoveType.ADVANCE:
@@ -39,13 +41,21 @@ public class Logic {
             b.setPieceAt(src, null);
             b.setPieceAt(src.right(1), null);
             break;
+
         case MoveType.KCASTLE:
-            b.setPieceAt(dest, p);
-            b.setPieceAt(src, null);
-            break;
         case MoveType.QCASTLE:
             b.setPieceAt(dest, p);
             b.setPieceAt(src, null);
+            if (m == MoveType.KCASTLE) {
+                rsrc = ((King) p).getKingsideRookPos();
+                rdst = ((King) p).getKingsideRookDest();
+
+            } else {
+                rsrc = ((King) p).getQueensideRookPos();
+                rdst = ((King) p).getQueensideRookDest();
+            }
+            b.setPieceAt(rdst, b.getPieceAt(rsrc));
+            b.setPieceAt(rsrc, null);
             break;
         }
 

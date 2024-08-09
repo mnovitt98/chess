@@ -1,11 +1,13 @@
 package chess;
 
 import chess.enums.MoveType;
-import chess.pieces.Piece;
 import chess.Index;
+import chess.pieces.Piece;
+import chess.pieces.King;
+import chess.Board;
 
 public class GameSerializer {
-    public static String[] serializeMove(MoveType m, Piece p, Index src, Index dest) {
+    public static String[] serializeMove(Board b, MoveType m, Piece p, Index src, Index dest) {
         /*
            The following events are pertinent to the client: when a piece should
            be placed on a square; when a piece should be removed from a square;
@@ -34,6 +36,7 @@ public class GameSerializer {
             src.setSwitchOrientation();
         }
 
+        Piece r = null;
         switch (m) {
         case MoveType.INVALID:
             return new String[]{"INVALID"};
@@ -60,16 +63,22 @@ public class GameSerializer {
             };
 
         case MoveType.KCASTLE:
+            r = b.getPieceAt(((King) p).getKingsideRookDest());
             return new String[]{
                 String.join("|", "REPLACE", p.toString(), dest.toString()),
                 String.join("|", "REMOVE", src.toString()),
+                String.join("|", "REPLACE", r.toString(), ((King) p).getKingsideRookDest().toString()),
+                String.join("|", "REMOVE", ((King) p).getKingsideRookPos().toString()),
                 "COMPLETE"
             };
 
         case MoveType.QCASTLE:
+            r = b.getPieceAt(((King) p).getQueensideRookDest());
             return new String[]{
                 String.join("|", "REPLACE", p.toString(), dest.toString()),
                 String.join("|", "REMOVE", src.toString()),
+                String.join("|", "REPLACE", r.toString(), ((King) p).getQueensideRookDest().toString()),
+                String.join("|", "REMOVE", ((King) p).getQueensideRookPos().toString()),
                 "COMPLETE"
             };
 
