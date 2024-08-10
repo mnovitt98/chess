@@ -32,17 +32,16 @@ public class Chess {
             p = this.board.getPieceAt(src);
             m = this.logic.processRegularMove(this.board, src, dest);
         } else if (mesgd[0].equals("PROMOTE")) {
-            // TODO
-            ;
+            src  = new Index(-1);
+            dest = new Index(-1);
+            p = this.logic.processPromotion(mesgd[1], this.board, p, dest);
+            m = MoveType.PROMOTION_SUBSTITUTE;
         } else if (mesgd[0].equals("RESET")) {
             System.out.println("Reseting game.");
             this.board = new Board();
             this.logic = new Logic();
             return new String[]{"RESET"};
-        } else {
-            // error
-            ;
-        }
+        } else { ; } // error
 
         return GameSerializer.serializeMove(this.board, m, p, src, dest);
     }

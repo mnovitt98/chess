@@ -8,5 +8,6 @@ public enum MoveType {
     RENPASSANT,
     KCASTLE,
     QCASTLE,
-    PROMOTION
+    PROMOTION_INITIATE,
+    PROMOTION_SUBSTITUTE
 };

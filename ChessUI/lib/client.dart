@@ -52,7 +52,12 @@ void deserializeMove(String s, ChessBoardState bs) {
     bs.notifyListeners();
   case "COMPLETE":
     bs.notifyListeners();
-    ;
+  case "PROMOTE_INITIATE":
+    bs.beginPromotion();
+    bs.notifyListeners();
+  case "PROMOTE_SUBSTITUTE":
+    bs.endPromotion();
+    bs.notifyListeners();
   }
 }
 

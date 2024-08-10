@@ -82,9 +82,18 @@ public class GameSerializer {
                 "COMPLETE"
             };
 
-         /* TODO */
-         case MoveType.PROMOTION:
-             break;
+         case MoveType.PROMOTION_INITIATE:
+            return new String[]{
+                String.join("|", "REPLACE", p.toString(), dest.toString()),
+                String.join("|", "REMOVE", src.toString()),
+                "PROMOTE_INITIATE"
+            };
+
+         case MoveType.PROMOTION_SUBSTITUTE:
+            return new String[]{
+                String.join("|", "REPLACE", p.toString(), dest.toString()),
+                "PROMOTE_SUBSTITUTE"
+            };
         }
 
         return new String[]{"INVALID||"};

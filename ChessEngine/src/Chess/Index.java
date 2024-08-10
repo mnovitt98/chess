@@ -111,6 +111,13 @@ public class Index {
         this.orientation = -1;
     }
 
+    public void setFromIndex(Index i) {
+        this.pos = i.getPos();
+        this.orientation = i.getOrientation();
+        this.numRows = i.getNumRows();
+        this.numCols = i.getNumCols();
+    }
+
     /* predicates */
 
     public boolean equals(Index other) {
@@ -138,8 +145,13 @@ public class Index {
             == Math.abs(this.getCol() - other.getCol());
     }
 
+    // chess specific functions, may put with board class?
     public boolean isKingSide() {
         return this.getCol() >= 4;
+    }
+
+    public boolean isBackRank() {
+        return this.getRow() == 0 || this.getRow() == 7;
     }
 
     /* methods */

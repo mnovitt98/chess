@@ -67,7 +67,46 @@ class ChessBoard extends StatelessWidget {
               );
             }
           ),
-          Spacer(flex: 1),
+          Consumer<ChessBoardState>(
+            builder: (context, boardState, child) {
+              return boardState.needsPromotion ?
+              Center(
+                child: Row(
+                  children: <Widget>[
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20)),
+                      onPressed: () {
+                        boardState.handleSelection("QUEEN");
+                      },
+                      child: const Text('Queen'),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20)),
+                      onPressed: () {
+                        boardState.handleSelection("BISHOP");
+                      },
+                      child: const Text('Bishop'),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20)),
+                      onPressed: () {
+                        boardState.handleSelection("KNIGHT");
+                      },
+                      child: const Text('Knight'),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20)),
+                      onPressed: () {
+                        boardState.handleSelection("ROOK");
+                      },
+                      child: const Text('Rook'),
+                    ),
+                  ]
+                )
+              )
+              : Spacer(flex: 1);
+            }
+          ),
           Table(
             defaultColumnWidth: FixedColumnWidth(this.squareSize),
             children: trs,

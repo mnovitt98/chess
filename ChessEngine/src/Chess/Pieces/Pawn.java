@@ -42,8 +42,13 @@ public class Pawn extends Piece {
             }
         } else {
             if (src.forward(1).equals(dest)) { // regular advance
-                System.out.println(String.format("Pawn to %s.", dest.inChessNotation()));
-                mt = MoveType.ADVANCE;
+                if (src.forward(1).isBackRank()) { // check if this is a pawn promotion
+                    System.out.println(String.format("Pawn to %s, promotion available.", dest.inChessNotation()));
+                    mt = MoveType.PROMOTION_INITIATE;
+                } else {
+                    System.out.println(String.format("Pawn to %s.", dest.inChessNotation()));
+                    mt = MoveType.ADVANCE;
+                }
             } else if (!this.hasMoved()
                        && src.forwardDistanceTo(dest) == 2
                        && b.openWalk(src, dest, Index.Direction.FORWARD)) { // move 2 from start

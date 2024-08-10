@@ -62,6 +62,7 @@ class ChessBoardState extends ChangeNotifier {
   List<Piece?> _pieces = List.from(initBoardState);
   late WebSocketChannel ws;
   ({int i, Piece? p}) lastSelected = (i: -1, p: null);
+  bool needsPromotion = false;
 
   ChessBoardState() {
     ws = getWebSocket(7897, (message) {
@@ -109,6 +110,19 @@ class ChessBoardState extends ChangeNotifier {
   void resetLastSelected() {
        _pieces[lastSelected.i] = lastSelected.p;
        lastSelected = (i: -1, p: null);
+  }
+
+  void handleSelection(String s) async {
+    await ws.ready;
+    ws.sink.add("PROMOTE|${s}");
+  }
+
+  void beginPromotion() {
+    this.needsPromotion = true;
+  }
+
+  void endPromotion() {
+    this.needsPromotion = false;
   }
 
   Image? getPieceImg(index) {
