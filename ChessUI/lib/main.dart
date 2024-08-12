@@ -67,11 +67,12 @@ class ChessBoard extends StatelessWidget {
               );
             }
           ),
+          Spacer(flex: 1),
           Consumer<ChessBoardState>(
             builder: (context, boardState, child) {
               return boardState.needsPromotion ?
-              Center(
-                child: Row(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20)),
@@ -103,8 +104,7 @@ class ChessBoard extends StatelessWidget {
                     ),
                   ]
                 )
-              )
-              : Spacer(flex: 1);
+                : Spacer(flex: 1);
             }
           ),
           Table(

@@ -20,22 +20,28 @@ public class Driver {
                        be uninitialized in the following statement. */
         }
 
-        System.out.println("Awaiting client connection...");
-        Socket client = ws.getClientandUpgradeConnection();
-
-        Chess game = new Chess();
         while (true) {
-            System.out.println();
-            String mesg = ws.readMesg(client);
-            if (mesg == null) {
-                break;
-            }
-            System.out.println();
+            System.out.println("Awaiting client connection...");
+            Socket client = ws.getClientandUpgradeConnection();
 
-            for (String s : game.getInstructions(mesg)) {
-                if (s != null) { // this should always be returing at least one message
-                    ws.sendMesg(client, s);
+            Chess game = new Chess();
+            try {
+                while (true) {
+                    System.out.println();
+                    String mesg = ws.readMesg(client);
+                    if (mesg == null) {
+                        break;
+                    }
+                    System.out.println();
+
+                    for (String s : game.getInstructions(mesg)) {
+                        if (s != null) { // this should always be returing at least one message
+                            ws.sendMesg(client, s);
+                        }
+                    }
                 }
+            } catch (Exception e) {
+                System.out.println(e);
             }
         }
     }

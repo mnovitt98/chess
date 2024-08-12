@@ -29,16 +29,15 @@ public class Pawn extends Piece {
     public MoveType _isValidMove(Board b, Index src, Index dest) {
         MoveType mt = MoveType.INVALID;
         if (b.pieceAt(dest)) { /* standard attacking */
-            if (!Piece.sameColor(this, b.getPieceAt(dest))) {
-                // normal capture
-                if (b.pieceAt(src.forward(1).left(1)) == b.pieceAt(dest)
-                    || b.pieceAt(src.forward(1).right(1)) == b.pieceAt(dest)) {
-                    System.out.println(String.format("Pawn takes %s.", dest.inChessNotation()));
-                    mt = MoveType.CAPTURE;
+            // normal capture
+            if (b.pieceAt(src.forward(1).left(1)) == b.pieceAt(dest)
+                || b.pieceAt(src.forward(1).right(1)) == b.pieceAt(dest)) {
+                System.out.println(String.format("Pawn takes %s.", dest.inChessNotation()));
+                mt = MoveType.CAPTURE;
+                if (dest.isBackRank()) { // check if this is a pawn promotion
+                    System.out.println(String.format("Promotion now available for %s.", this.isLight() ? "White" : "Black"));
+                    mt = MoveType.PROMOTION_INITIATE;
                 }
-            } else {
-                System.out.println("Invalid: pawn can't capture a piece of the same color.");
-                return MoveType.INVALID;
             }
         } else {
             if (src.forward(1).equals(dest)) { // regular advance

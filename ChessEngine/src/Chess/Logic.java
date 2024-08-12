@@ -25,7 +25,6 @@ public class Logic {
             return new Queen(isLight);
         }
 
-        System.out.println("HERE");
         return null;
     }
 
@@ -47,6 +46,11 @@ public class Logic {
 
         if (p.isLight() != turn) {
             System.out.println(String.format("Wrong player. %s to play.", this.turn ? "White" : "Black"));
+            return MoveType.INVALID;
+        }
+
+        if (this.promotionPosition != null) { // in the middle of a promotion udpate
+            System.out.println(String.format("Must continue with %s's pawn promotion.", this.turn ? "White" : "Black"));
             return MoveType.INVALID;
         }
 
