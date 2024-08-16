@@ -11,7 +11,7 @@ websocket : HTTPParser.class  WebSocketServer.class
 proper : MoveType.class                       \
          coupled                              \
          GameSerializer.class                 \
-         Logic.class Chess.class              \
+         Logic.class Chess.class
 
 driver : Driver.class
 

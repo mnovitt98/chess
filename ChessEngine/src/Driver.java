@@ -11,7 +11,6 @@ public class Driver {
         WebSocketServer ws;
         try {
             ws = new WebSocketServer(PORT);
-
         } catch (IOException e) {
             System.out.print(String.format("Exception setting up socket server: %s\n", e)
                              + "Quitting.\n");
@@ -23,26 +22,7 @@ public class Driver {
         while (true) {
             System.out.println("Awaiting client connection...");
             Socket client = ws.getClientandUpgradeConnection();
-
-            Chess game = new Chess();
-            try {
-                while (true) {
-                    System.out.println();
-                    String mesg = ws.readMesg(client);
-                    if (mesg == null) {
-                        break;
-                    }
-                    System.out.println();
-
-                    for (String s : game.getInstructions(mesg)) {
-                        if (s != null) { // this should always be returing at least one message
-                            ws.sendMesg(client, s);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                System.out.println(e);
-            }
+            new Thread(new Chess(ws, client)).start(); // need to clean up thread
         }
     }
 }

@@ -1,5 +1,9 @@
 package chess;
 
+import java.net.Socket;
+
+import websocket.WebSocketServer;
+
 import chess.GameSerializer;
 import chess.enums.MoveType;
 import chess.Index;
@@ -7,15 +11,48 @@ import chess.pieces.Piece;
 import chess.Board;
 import chess.Logic;
 
-public class Chess {
+public class Chess implements Runnable {
     private static final int MAX_MESG_COUNT = 10;
 
     private Board board;
     private Logic logic;
 
+    private WebSocketServer ws;
+    private Socket client;
+
     public Chess() {
         this.board = new Board();
         this.logic = new Logic();
+    }
+
+    public Chess(WebSocketServer ws, Socket client) {
+        this.board = new Board();
+        this.logic = new Logic();
+
+        this.ws = ws;
+        this.client = client;
+    }
+
+    // this should, in time, be split into two functions, one for play, one for run
+    public void run() {
+        try {
+            while (true) {
+                System.out.println();
+                String mesg = ws.readMesg(client);
+                if (mesg == null) {
+                    break;
+                }
+                System.out.println();
+
+                for (String s : this.getInstructions(mesg)) {
+                    if (s != null) { // this should always be returing at least one message
+                        ws.sendMesg(client, s);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     public String[] getInstructions(String mesg) {
